@@ -1,0 +1,7 @@
+<div class="col-xs-12 col-sm-6 col-md-4">
+  <h1><%- profile.get('first_name') %> <%- profile.get('last_name') %></h1>
+  <div class="email"><%- profile.get('email') %> </div>
+  <textarea readonly class="form-control" style="height: 110px;margin-top:10px;"><%- session.get('jwt') %></textarea>
+
+
+</div>

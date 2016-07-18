@@ -1,0 +1,57 @@
+<div class="modal fade"  tabindex="-1" role="dialog" id="gass">
+    <div class="modal-dialog">
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"><%- model.get('name') %></h4>
+      </div>
+      <div class="modal-body">
+        <div class="panel-body">
+          <div class="read">
+            <div class="item-actions">
+              <button class="btn btn-default" disabled><i class="fa fa-print"></i> Print</button>
+              <button class="btn btn-default"><i class="fa fa-cube"></i> 3d View</button>
+
+
+              <div class="pull-right">
+                <button class="btn btn-default edit"><i class="fa fa-cog"></i></button>
+              </div>
+            </div>
+
+            <div class="panel-body">
+              <div class="preview"><img src="<%- model.get('preview') %>"/></div>
+            </div>
+          </div>
+
+          <div class="edit hidden">
+            <div class="form-group">
+              <label class="control-label">Name: </label>
+              <input type="text" class="form-control name" placeholder="name" value="<%- model.get('name') %>"/>
+            </div>
+            <div class="form-group">
+              <label class="control-label">Sharing: </label>
+              <select class="form-control">
+                <option value="0">Private</option>
+                <option value="1"<% if (model.get('public')) { %> selected<% } %>>Public</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+
+          <div class="edit hidden">
+            <div class="pull-left"><button type="button" class="btn btn-danger delete"><i class="fa fa-remove"></i> Delete</button></div>
+
+            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Cancel</button>
+            <button type="button" class="btn btn-default save"><i class="fa fa-check"></i> Save</button>
+          </div>
+
+          <div class="read">
+            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+          </div>
+
+      </div>
+    </div>
+  </div>
+</div>

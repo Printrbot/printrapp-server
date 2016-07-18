@@ -1,0 +1,19 @@
+<% if (project.get('_id')) { %>
+    <% if (project.get('thumbnail')) { %>
+    <div class="preview-block" idx="<%= project.get('_id') %>">
+      <img src="<%= project.get('thumbnail') %>" style="width: 100%"/ >
+    <% } else { %>
+    <div class="preview-block" idx="<%= project.get('_id') %>">
+      <img src="/images/noimage_thumb.png" style="width: 100%"/ >
+    <% } %>
+    </div>
+    <div class="project-footer">
+        <div class="project-name"><%= project.get('name') %></div>
+    </div>
+<% } else { %>
+  <div class="preview-block" style="background-image:url(/images/loading.gif)">
+  </div>
+  <div class="project-footer uploading">
+      <div class="project-name">uploading...</div>
+  </div>
+<% } %>

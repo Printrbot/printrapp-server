@@ -1,0 +1,15 @@
+<h1>Register New Printer</h1>
+
+<div class="panel">
+  <div class="panel-body info">
+    I bought shoes from a drug dealer. I don't know what he laced them with but I've been tripping all day.
+  </div>
+</div>
+
+<div class="register-code">
+  <% if (!register_code) { %>
+    <i class="fa fa-refresh fa-lg fa-spin"></i>
+  <% } else { %>
+    <%- register_code %>
+  <% } %>
+</div>

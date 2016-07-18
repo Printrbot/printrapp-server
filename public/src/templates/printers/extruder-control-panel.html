@@ -1,0 +1,50 @@
+<div class="extruder subpanel ">
+
+  <div class="panel-heading">
+    <div class="panel-title">Temperature</div>
+  </div>
+
+  <div class="panel-body">
+    <div class="row">
+        <div class="col-xs-4">
+          <label>Temperature:
+            <div class="extruder-temperature">
+              <%= (status && status.headTemperature && (status.targetHeadTemperature || status.paused) ? status.headTemperature + '&deg;C' : '-') %>
+            </div>
+          </label>
+        </div>
+        <div class="col-xs-4">
+          <label>Target:</label>
+            <input type="text" class="form-control extruder-temperature-target" placeholder="none" value="<%= (status ? status.targetHeadTemperature : null) %>"/>
+          </label>
+        </div>
+        <div class="col-xs-4">
+          <label>&nbsp;</label>
+            <button class="btn btn-default btn-set-extruder-temperature" style="width:100%">Set</button>
+          </label>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-xs-4">
+          <label>Extrude (mm):</label>
+            <input type="text" class="form-control extruder-filament-length" value="1"/>
+          </label>
+        </div>
+        <div class="col-xs-4">
+          <label>&nbsp;</label>
+            <button class="btn btn-default btn-retract" style="width:100%">Retract</button>
+          </label>
+        </div>
+        <div class="col-xs-4">
+          <label>&nbsp;</label>
+            <button class="btn btn-default btn-extrude" style="width:100%">Extrude</button>
+          </label>
+        </div>
+    </div>
+
+
+
+
+  </div>

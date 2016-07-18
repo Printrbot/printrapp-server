@@ -1,0 +1,56 @@
+<div class="jog subpanel" style="margin-bottom:10px;">
+
+  <div class="panel-heading">
+    <div class="panel-title">Jog</div>
+  </div>
+
+  <div class="panel-body">
+    <div class="jog  col-xs-12" style="max-width:420px;">
+      <div class="jog-buttons">
+        <div class="row">
+          <div class="col-xs-2 col-xs-offset-3">
+            <button class="btn btn-default btn-lg" m="y+"><i class="fa fa-caret-up"></i></button>
+          </div>
+          <div class="col-xs-2 col-xs-offset-3">
+            <button class="btn btn-default btn-lg" m="z+"><i class="fa fa-caret-up"></i></button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-2 col-xs-offset-1">
+            <button class="btn btn-default btn-lg" m="x-"><i class="fa fa-caret-left"></i></button>
+          </div>
+          <div class="col-xs-2">
+            <button class="btn btn-default btn-lg" m="hxy"><i class="fa fa-home"></i></button>
+          </div>
+          <div class="col-xs-2">
+            <button class="btn btn-default btn-lg" m="x+"><i class="fa fa-caret-right"></i></button>
+          </div>
+          <div class="col-xs-2 col-xs-offset-1">
+            <button class="btn btn-default btn-lg" m="hz"><i class="fa fa-home"></i></button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-2 col-xs-offset-3">
+            <button class="btn btn-default btn-lg" m="y-"><i class="fa fa-caret-down"></i></button>
+          </div>
+          <div class="col-xs-2 col-xs-offset-3">
+            <button class="btn btn-default btn-lg" m="z+"><i class="fa fa-caret-down"></i></button>
+          </div>
+        </div>
+        </div>
+        <div class="row">
+          <div class="btn-group jog-size col-xs-offset-1">
+              <button type="button" class="btn btn-default <% if (jogSize == 0.2) { %>active<% } %>">0.2</button>
+              <button type="button" class="btn btn-default <% if (jogSize == 0.5) { %>active<% } %>">0.5</button>
+              <button type="button" class="btn btn-default <% if (jogSize == 1) { %>active<% } %>">1</button>
+              <button type="button" class="btn btn-default <% if (jogSize == 10) { %>active<% } %>">10</button>
+              <button type="button" class="btn btn-default <% if (jogSize == 100) { %>active<% } %>">100</button>
+              <button type="button" class="btn btn-default <% if (jogSize == 150) { %>active<% } %>">150</button>
+          </div>
+        </div>
+    </div>
+
+
+  </div>
+
+</div>

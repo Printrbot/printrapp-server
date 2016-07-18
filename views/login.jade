@@ -1,0 +1,14 @@
+extends layout
+block maincontent
+  include sidebar
+
+  div.col-xs-10.maincontent
+      div.row
+          form(role="form",id="login-form",action="/login",method="POST",class="col-xs-4")
+              div.error= error
+              div.form-group
+                  input.form-control#login_email(type="email",name="email",placeholder="Email",value="")
+              div.form-group
+                  input.form-control#login_password(type="password", name="passwd", placeholder="Password", value="")
+              div.login-btn
+                  button.btn.btn-default(type="submit") Submit

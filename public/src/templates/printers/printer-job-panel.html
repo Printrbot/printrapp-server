@@ -1,0 +1,37 @@
+<div class="panel subpanel">
+
+  <div class="panel-heading">
+    <div class="panel-title col-xs-12">
+      <% if (status.preheating) { %>Preheating, please wait...<% }  else {  if (status.paused) {%>Paused...<%} else { %>Printing...<%} } %>
+    </div>
+  </div>
+
+  <div class="panel-body">
+    <% if (!status.preheating) { %>
+    <div style="clear:both">
+      <div class="progress">
+        <div class="progress-bar progress-bar-info progress-bar-striped" style="width: <%- progress %>%"></div>
+      </div>
+      <div><%- progress %>% complete</div>
+    </div>
+    <div>
+
+
+        <% if (!status.paused) { %>
+          <button class="pause-job btn btn-default "  data-toggle="tooltip" data-placement="top" title="Pause Print Job"><i class="fa fa-pause"></i> Pause
+        <% } else { %>
+          <button class="pause-job btn btn-default "  data-toggle="tooltip" data-placement="top" title="Continue Print Job"><i class="fa fa-play"></i> Continue
+        <% } %>
+        </button>
+      <button class="cancel-job btn btn-danger"  data-toggle="tooltip" data-placement="top" title="Cancel Print Job"><i class="fa fa-close"></i> Cancel</button>
+    </div>
+    <% } else { %>
+      <div>Extruder: <%- status.headTemperature %></div>
+      <% if (printer.get('settings').heated_bed) { %>
+      <div>Bed: <%- status.bedTemperature %></div>
+      <% } %>
+    <% } %>
+
+  </div>
+
+</div>

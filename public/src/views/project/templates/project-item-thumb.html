@@ -1,0 +1,10 @@
+<div class="preview-block" idx="<%= item.get('id') %>">
+<% if (item.get('thumbnail')) { %>
+  <img src="<%= item.get('thumbnail') %>" style="width:100%"/>
+<% } else { %>
+  <img src="/images/loading.gif" style="width:100%;height:164px">
+<% } %>
+</div>
+    <div class="project-footer">
+        <div class="project-name" title="<%= item.get('name') %>"><%= item.get('name') %></div>
+    </div>

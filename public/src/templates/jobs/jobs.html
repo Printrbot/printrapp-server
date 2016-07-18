@@ -1,0 +1,57 @@
+<div class="panel">
+
+  <div class="panel-body">
+    <% if (jobs.length > 0) { %>
+
+      <% _.each(jobs, function(job) { %>
+
+        <div class="row job-row">
+            <div class="col-md-3">
+              <div class="job-thumb"><img src="<%= job.get('project').thumbnail %>"/></div>
+            </div>
+            <div class="job-status">
+              <% if (printer && job.get('_id') == printer.job) { %>
+                <i class="fa fa-circle-o-notch fa-spin"></i> Printing...
+              <% } else { %>
+                <% if (job.get('status') == 'slicing') { %> <i class="fa fa-circle-o-notch fa-spin"></i> <% } %>
+                <%- job.get('status') %>
+              <% } %>
+            </div>
+
+            <div class="col-md-6">
+              <div class="job-info">
+                <div class="job-title"><a href="#project/<%- job.get('project')._id %>"><%- job.get('project').originalname.replace('.stl','').replace('_',' ').substring(0,28) %></a></div>
+                <ul class="job-settings">
+                  <li>Created on: <%- moment(job.get('created_at')).format('MM/DD/YYYY h:mm a') %></li>
+                  <li>Material: <%- job.get('material') %></li>
+                  <li>Quality: <%- job.get('quality') %></li>
+
+                  <li>Use support: <% if (job.get('support') == "true") { %> Yes <% } else { %>No<% } %></li>
+                </ul>
+
+                <div>
+                <% if (job.get('status') == 'ready' && printer ) { %>
+                  <button class="btn btn-primary start-print" idx="<%- job.get('_id') %>"><i class="fa fa-print"></i> Send to printer</button>
+                <% } else { %>
+                  <button class="btn btn-default disabled "><i class="fa fa-clock-o"></i></button>
+                <% } %>
+                <% if (!status || !status.printing) { %>
+                  <button class="btn btn-danger delete-job"  data-toggle="tooltip" data-placement="top" title="Delete Print Job" idx="<%- job.get('_id') %>"><i class="fa fa-trash"></i></button>
+                <% } else { %>
+
+                <% } %>
+                <% if (job.get('status') == 'ready') { %>
+                    <button class="btn btn-default download-job "  data-toggle="tooltip" data-placement="top" title="Download to SD Card" idx="<%- job.get('_id') %>"><i class="fa fa-download"></i></button>
+                <% } %>
+
+                </div>
+              </div>
+            </div>
+        </div>
+      <% }) %>
+
+    <% } else { %>
+      There are no jobs in queue
+    <% } %>
+  </div>
+</div>

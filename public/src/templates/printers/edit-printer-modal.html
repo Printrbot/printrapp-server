@@ -1,0 +1,75 @@
+<div class="modal fade"  tabindex="-1" role="dialog"  id="printer_settings" aria-labelledby="printerDialogTitle" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="printerDialogTitle">Change Printer Settings</h4>
+      </div>
+      <div class="modal-body">
+
+        <div class="program-form">
+              <div class="form-group">
+                <select id="printer_model" class="form-control input-lg">
+                    <optgroup label="Current">
+                    <% _.each(models.get('current'), function(m) {  %>
+                        <option value="<%- m.model %>" <% if (printer.get('model') == m.model) { %>selected<%}%>><%- m.model %></option>
+                    <% }) %>
+                    </optgroup>
+                    <optgroup label="Old">
+                    <% _.each(models.get('old'), function(m) {  %>
+                        <option value="<%- m.model %>" <% if (printer.get('model') == m.model) { %>selected<%}%>><%- m.model %></option>
+                    <% }) %>
+                    </optgroup>
+                </select>
+              </div>
+
+              <div class="row">
+                <div class="form-group col-xs-6">
+                  <label for="x">Bed Width (mm)</label>
+                  <input type="number" class="form-control" id="x" value="<%= printer.get('settings').x %>">
+                </div>
+                <div class="form-group col-xs-6">
+                  <label for="y">Bed Height (mm)</label>
+                  <input type="number" class="form-control" id="y" value="<%= printer.get('settings').y %>">
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="form-group col-xs-6">
+                  <label for="nozzle_size">Nozzle Size (mm)</label>
+                  <input type="number" class="form-control" id="nozzle_size" value="<%= printer.get('settings').nozzle_size %>">
+                </div>
+                <div class="form-group col-xs-6">
+                  <label for="filament_diameter">Filament Diameter (mm)</label>
+                  <input type="number" class="form-control" id="filament_diameter" value="<%= printer.get('settings').filament_diameter %>">
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="form-group col-xs-6">
+                  <label><input type="checkbox" id="heated_bed" <% if (printer.get('settings').heated_bed) { %>checked<%}%>> Heated Bed</label>
+                </div>
+                <div class="form-group col-xs-6">
+                  <label><input type="checkbox" id="autolevel" <% if (printer.get('settings').autolevel) { %>checked<%}%>> Autolevel Probe</label>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="form-group col-xs-6">
+                  <label><input type="checkbox" id="dual_extruder" <% if (printer.get('settings').dual_extruder) { %>checked<%}%>> Dual Extruder</label>
+                </div>
+              </div>
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default cancelPrinterEdit" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary savePrinter">Save</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,6 @@
+extends layout
+block content
+    div.container
+        each file in files.rows
+          div.file= file.value.name
+            img(src=file.value.thumbnail)

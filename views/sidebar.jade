@@ -1,0 +1,15 @@
+
+div.col-xs-2.sidebar
+
+  ul.nav.nav-pills
+  
+    li(class=page=='login'?'active':undefined)
+      a(href="/login")
+        i.fa.fa-lock.fa-4x
+        span Login
+    li(class=page=='join'?'active':undefined)
+      a(href="/join")
+        i.fa.fa-group.fa-4x
+        span Join
+  div.pb-logo
+    img(src='images/pb-sm-logo.png')

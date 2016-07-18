@@ -1,0 +1,29 @@
+<% if (printers.scanning) { %>
+Scanning...
+<% } else { %>
+<div class="content">
+  <% if (printers.printers.length > 0) { %>
+    <% _.each(printers.printers, function(p) { %>
+      <div class="panel">
+        <div class="panel-heading"><%- p.get('name') %></div>
+        <div class="panel-body">
+          <ul>
+            <li><label>sn:</label> <%- p.get('serial') %></li>
+            <li><label>model:</label> <%- p.get('model') %></li>
+            <li><label>firmware:</label> <%- p.get('fv') %></li>
+            <li><label>status:</label> <%- p.get('status') %></li>
+          </ul>
+        </div>
+      </div>
+
+    <% }); %>
+  <% } else { %>
+  <div class="alert alert-info">No printers available</div>
+  <% } %>
+</div>
+<div>
+  <a href="#printer/register" class="btn btn-default"><i class="fa fa-plus"></i> Register New</a>
+</div>
+<% } %>
+<div class="plist"></div>
+<div class="pctrl"></div>

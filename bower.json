@@ -1,0 +1,25 @@
+{
+  "name": "printrapp-server",
+  "main": "public/src/app.js",
+  "version": "0.0.0",
+  "authors": [
+    "mick <mick@printrbot.com>"
+  ],
+  "license": "MIT",
+  "homepage": "printrbot.com",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "directory": "public/bower_components",
+  "dependencies": {
+    "backbone": "~1.2.1",
+    "backbone.localStorage": "~1.1.16",
+    "bootstrap-growl-injectable": "~1.1.0",
+    "fontawesome": "~4.3.0",
+    "requirejs": "*"
+  }
+}

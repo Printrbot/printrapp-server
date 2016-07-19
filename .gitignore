@@ -3,3 +3,7 @@ node_modules
 public-build
 public/bower_components
 uploads/*
+
+public/src/views/browser/TEMPLATEModal.js
+
+public/src/views/browser/templates/template.html

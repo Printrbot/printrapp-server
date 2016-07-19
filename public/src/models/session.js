@@ -5,37 +5,39 @@ function(
   localStorage
 )
 {
-    var m = Backbone.Model.extend(
+  var m = Backbone.Model.extend(
+  {
+    id: 'user',
+
+    localStorage: new Backbone.LocalStorage('user'),
+
+    defaults: {
+        authenticated: false,
+        jwt: null
+    },
+
+    getId: function()
     {
-        id: 'user',
+      if (this.get('authenticated')) {
+        var jwt = this.get('jwt').split(".");
+        var data = JSON.parse(atob(jwt[1]));
+        return data.id;
+      }
+    },
 
-        localStorage: new Backbone.LocalStorage('user'),
+    initialize: function()
+    {
 
-        defaults: {
-            authenticated: false,
-            jwt: null
-        },
+    },
 
-        getId: function()
-        {
-          if (this.get('authenticated')) {
-            var jwt = this.get('jwt').split(".");
-            var data = JSON.parse(atob(jwt[1]));
-            return data.id;
-          }
-        },
+    parse: function(e)
+    {
+      if (e && e.constructor === Array && e.length > 0)
+        e = e[0];
 
-        initialize: function()
-        {
+      return e
+    }
+  })
 
-        },
-
-        parse: function(e)
-        {
-          return e
-        }
-
-    })
-
-    return new m();
+  return new m();
 });

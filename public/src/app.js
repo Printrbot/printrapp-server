@@ -55,14 +55,12 @@ function(
 	{
     if (sessionModel.get('authenticated') && sessionModel.get('jwt'))
     {
-        options =  _.extend({
-            beforeSend: function(xhr) {
-                var token = 'Bearer ' + sessionModel.get('jwt');
-                xhr.setRequestHeader('Authorization', token);
-            }
-        }, options)
-
-
+      options =  _.extend({
+        beforeSend: function(xhr) {
+          var token = 'Bearer ' + sessionModel.get('jwt');
+          xhr.setRequestHeader('Authorization', token);
+        }
+      }, options)
     }
 		Backbone.sync(method, model, options);
 	};
@@ -71,20 +69,20 @@ function(
 
 	app.alert = function(type, text)
   {
-      if (type == 'error') {
-				type = 'danger';
-			}
+    if (type == 'error') {
+			type = 'danger';
+		}
 
-      $.bootstrapGrowl(text, {
-          ele: 'body',
-          type: type + ' alert-dismissable',
-          offset: {from: 'top', amount: 10},
-          align: 'right',
-          width: 300,
-          delay: 3000,
-          allow_dismiss: true,
-          stackup_spacing: 5
-      });
+    $.bootstrapGrowl(text, {
+      ele: 'body',
+      type: type + ' alert-dismissable',
+      offset: {from: 'top', amount: 10},
+      align: 'right',
+      width: 300,
+      delay: 3000,
+      allow_dismiss: true,
+      stackup_spacing: 5
+    });
   };
 
 	app.logout = function() {
@@ -96,7 +94,7 @@ function(
 
 	app.getConnectedPrinter = function()
 	{
-			return this.connectedPrinter;
+		return this.connectedPrinter;
 	}
 
 	sessionModel.bind('change:authenticated', function(c) {

@@ -6,7 +6,7 @@ var AWS = require('aws-sdk')
   , ProjectModel = require('./models/project_model')
   , MessageQueue = require('./util/message_queue')
 
-AWS.config.update({region: 'us-west-1'});
+AWS.config.update({region: 'us-west-2'});
 
 var sqs = new AWS.SQS();
 
@@ -55,6 +55,10 @@ function onReceiveMessage(err, data)
       })
       .then(function(item) {
         // done, continue pooling
+        poolMessages();
+      }).catch(function(err) {
+        console.info("ERROR");
+        console.info(err);
         poolMessages();
       })
     } else {

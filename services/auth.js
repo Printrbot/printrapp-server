@@ -31,8 +31,9 @@ module.exports = function(app)
                     last_name: data.rows[0].value.last_name,
                     id: data.rows[0].id
                   }
-
                   var token = jwt.sign(_user, awsc.secret);
+                  console.info(_user);
+                  console.info(token);
                   res.json({'jwt':token});
               } else {
                   return res.sendStatus(401);
@@ -115,6 +116,6 @@ module.exports = function(app)
 
     app.get('/join', function(req,res)
     {
-        res.render('join', {page: 'join'});
+
     });
 };

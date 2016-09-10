@@ -24,8 +24,9 @@ function(
       this.project = o.project;
       this.forcereload = false;
 
+      console.info(this.model)
+
       this.listenTo(app.channel, 'render.completed', function(e) {
-        console.info(e)
         if (!this.model.get('_id')) {
           if (this.model.get('name').toLowerCase() == e.data.name.toLowerCase()) {
             this.model.set(e.data);
@@ -38,6 +39,22 @@ function(
           }
         }
       }, this)
+
+      this.listenTo(app.channel, 'item.uploaded', function(e) {
+        if (!this.model.get('_id')) {
+          if (this.model.get('name').toLowerCase() == e.name.toLowerCase()) {
+            this.model.set(e);
+            this.render();
+          }
+        } else {
+          if (this.model.get('_id') == e._id) {
+            this.model.set(e);
+            this.render();
+          }
+        }
+
+        console.info(this.project);
+      }, this)
     },
 
     onThumbClick: function(e)
@@ -47,6 +64,7 @@ function(
 
       ps.open(function(o) {
         // callback
+        that.render();
       });
     },
 

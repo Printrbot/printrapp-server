@@ -16,6 +16,7 @@ var db = require('../config/database')
   , MeshTools = require('../util/mesh_tools')
   , BotFiles = require('../util/bot_files')
 
+
 module.exports = function(app) {
 
   app.get('/api/projects', function(req,res) {
@@ -55,14 +56,15 @@ module.exports = function(app) {
     });
   });
 
-  app.get('/api/project/:id/raw', function(req, res)
+  app.get('/api/project/:id/:jwt/index', function(req, res)
   {
-    checkAuth.verifyHeader(req.headers)
+    checkAuth.verifyJwt(req.params.jwt)
     .then(function(udata) {
       // grab the project from couch
       return ProjectModel.getProjectByIdAndUser(req.params.id, udata.id);
     })
     .then(function(project) {
+
       // find all the project items
       return ProjectModel.getProjectItems(project._id)
       .then(function(items) {
@@ -85,7 +87,6 @@ module.exports = function(app) {
 
   app.post('/api/project', function(req, res)
   {
-
     checkAuth.verifyHeader(req.headers)
     .then(function(udata) {
       // verify required params
@@ -96,7 +97,8 @@ module.exports = function(app) {
       var data = {
         "user": udata.id,
         "name": req.body.name,
-        "description": req.body.description
+        "description": req.body.description,
+        "idx": hat(32, 16)
       };
       return ProjectModel.create(data);
     })
@@ -161,6 +163,9 @@ module.exports = function(app) {
         if (!_.contains(['id','_id','user']))
           project[k] = v;
       });
+      if (!project['idx']) {
+        project['idx'] = hat(32, 16);
+      }
       return ProjectModel.update(project);
     })
     .then(function(project) {
@@ -171,6 +176,56 @@ module.exports = function(app) {
       console.info(err);
       return res.sendStatus(400);
     });
+  });
+
+  app.put('/api/project/:pid/item/:iid', function(req, res)
+  {
+    checkAuth.verifyHeader(req.headers)
+    .then(function(udata) {
+      return ProjectModel.getProjectItemByIdAndUser(req.params.iid, udata.id)
+    })
+    .then(function(item) {
+      console.info(item);
+      _.each(req.body, function(v,k,l) {
+        if (!_.contains(['id','_id','_rev','user'], k))
+          item[k] = v;
+      });
+      return ProjectModel.updateItem(item);
+    })
+    .then(function(item) {
+      // call lambda slicer
+      // (only if stuff changed) todo
+      var lambda = new AWS.Lambda({
+          region: ac.region
+      });
+
+      lambda.invoke({
+        FunctionName: 'slice-dev-testcura',
+        Payload: JSON.stringify(item[0])
+      }, function(err, data) {
+        if (err) {
+          console.log(err, err.stack);
+          return [item[0], err];
+        }
+        else {
+          console.info("Done with lambda");
+
+          var output = JSON.parse(data.Payload);
+          if (output.errorMessage) {
+            console.log("ERROR:");
+            console.log(output.errorMessage);
+          }
+          console.log("all good");
+        }
+      });
+    })
+    .catch(function(err) {
+      // error
+      console.log("ERROR:")
+      console.log(err);
+    });
+
+    res.json({status: "success"});
   });
 
   app.post('/api/project/:id/uploadpreview', function(req, res) {
@@ -189,21 +244,21 @@ module.exports = function(app) {
           return ImageTools.createAllSizes(f)
           .then(function(j) {
             var _f = j[0].split("/").pop();
-            return FileRepo.uploadToS3(j[0], f.mimetype, s3uploadpath+_f)
+            return FileRepo.uploadToS3(j[0], 'img/png', s3uploadpath+_f)
             .then(function(preview) {
               return [j, preview];
             })
           })
           .spread(function(j, preview) {
             var _f = j[1].split("/").pop();
-            return FileRepo.uploadToS3(j[1], f.mimetype, s3uploadpath+_f)
+            return FileRepo.uploadToS3(j[1], 'img/png', s3uploadpath+_f)
             .then(function(thumb) {
               return [j, preview, thumb];
             })
           })
           .spread(function(j, preview, thumb) {
             var _f = j[2].split("/").pop();
-            return FileRepo.uploadToS3(j[2], f.mimetype, s3uploadpath+_f)
+            return FileRepo.uploadToS3(j[2], 'img/png', s3uploadpath+_f)
             .then(function(raw) {
               return [j, preview, thumb, raw];
             })
@@ -213,6 +268,7 @@ module.exports = function(app) {
             project.preview = preview.Location;
             project.thumbnail = thumb.Location;
             project.rawimage = raw.Location;
+
             return ProjectModel.update(project);
           })
         }
@@ -237,58 +293,57 @@ module.exports = function(app) {
       return ProjectModel.getProjectByIdAndUser(req.params.id, udata.id)
     })
     .then(function(project) {
-      console.info("GOT THE PROJECT", project);
+
       var f = req.files.file;
+      if (f.extension.toLowerCase() != "stl")
+        throw new Error('Invalid file format. Only STL files are supported');
+
       var pi = {
         "id": hat(),
+        "idx": hat(32, 16),
         "name": f.originalname.toLowerCase(),
         "type": "project_item",
         "user": project.user,
+        "project": project._id,
+        "region": "us-west-2",
+        "resolution": "standard",
+        "support": false,
+        "brim": false,
+        "infill": "standard",
+        "advanced": [],
         "created_at": new Date().getTime()
       }
-      if (f.extension.toLowerCase() == 'stl') {
-        // fix the uploaded file with admesh
-        pi.file_type = 'stl';
-        pi.mime_type = f.mimetype;
-        pi.project = req.params.id;
-
-        return MeshTools.fixStl(f.path)
-        .then(function(file_path) {
-          // upload stl to s3
-          console.info("UPLOADING TO S3")
-          var s3uploadpath = 'u/'+project.user+'/i/'+pi.id+'/';
-          var _f = f.path.split("/").pop();
-          return FileRepo.uploadToS3(file_path, f.mimetype, s3uploadpath+_f)
+      console.info("UPDATING ITEM:");
+      console.info(pi);
+      // fix the uploaded file with admesh
+      return MeshTools.fixStl(f.path) // maybe move this to lambda?
+      .then(function(file_path) {
+        // upload stl to s3
+        console.info("UPLOADING TO S3")
+        var s3uploadpath = 'u/'+project.user+'/i/'+pi.id+'/';
+        var _f = f.path.split("/").pop();
+        return FileRepo.uploadToS3(file_path, f.mimetype, s3uploadpath+_f)
+      })
+      .then(function(stl) {
+        console.info("UPDATING PROJECT WITH SRC ", stl);
+        // update item with stl location
+        console.info(stl);
+        pi.file_path = stl.Key;
+        return pi
+      })
+      .then(function(_pi) {
+        console.info("SAVING PROJECT ITEM TO DB")
+        // save this item in database
+        return ProjectModel.createItem(pi);
+      })
+      .then(function(project_item_res) {
+        // send message to render queue
+        console.info("SENDING RENDER MSG", pi)
+        return MessageQueue.sendRenderMessage(pi)
+        .then(function(q) {
+          return [project, pi];
         })
-        .then(function(stl) {
-          console.info("UPDATING PROJECT WITH SRC ", stl);
-          // update item with stl location
-          pi.src = stl.Location;
-          return pi
-        })
-        .then(function(_pi) {
-          console.info("SAVING PROJECT ITEM TO DB")
-          // save this item in database
-          return ProjectModel.createItem(pi);
-        })
-        .then(function(project_item_res) {
-          // send message to render queue
-          console.info("SENDING RENDER MSG", pi)
-          return MessageQueue.sendRenderMessage(pi)
-          .then(function(q) {
-            return [project, pi];
-          })
-        })
-      }
-      else if (!_.contains(['jpg', 'jpeg', 'png'], f.extension.toLowerCase())) {
-        pi.file_type = 'image';
-        pi.mime_type = f.mimetype;
-        // upload image item
-        // THIS IS NOT DONE!!!
-        // TODO ^^^^
-      } else {
-        throw new Error('invalid format');
-      }
+      })
     })
     /*
     .spread(function(project, item) {
@@ -301,7 +356,31 @@ module.exports = function(app) {
     })
     */
     .spread(function(project, item) {
-      console.info("ALL DONE ", project)
+
+      console.info("calling lambda slicer ", item)
+      var lambda = new AWS.Lambda({
+          region: ac.region
+      });
+
+      lambda.invoke({
+        FunctionName: 'slice-dev-testcura',
+        Payload: JSON.stringify(item)
+      }, function(err, data) {
+        if (err) {
+          console.log(err, err.stack);
+          return [item, err];
+        }
+        else {
+          console.info("Done with lambda");
+          var output = JSON.parse(data.Payload);
+          if (output.errorMessage) {
+            console.log("ERROR:");
+            console.log(output.errorMessage);
+          }
+          console.log("all good");
+        }
+      });
+
       return res.json(project);
     })
     .catch(function(err) {
@@ -350,7 +429,7 @@ module.exports = function(app) {
     });
   });
 
-}
+
 
     /// -----------------------------------------------------------------------------------
 
@@ -532,3 +611,39 @@ module.exports = function(app) {
     sqs.sendMessage(rparams, cb);
   }
 */
+
+/*
+app.get('/api/cleanshit', function(req, res)
+{
+
+  db.view("jobs", "byproject", {}, function(err, body) {
+    if (err) return res.sendStatus(500);
+    else {
+      Promise.reduce(body.rows, function(ac, o) {
+        var item = o.value;
+
+        db.destroy(item._id, item._rev, function(err, body) {
+          if (err) {
+            console.info(err);
+            return err;
+          } else {
+            return body;
+          }
+        });
+      })
+      .then(function(total) {
+        res.json(body);
+      })
+
+
+
+
+    }
+  })
+
+
+});
+*/
+
+
+}

@@ -6,28 +6,27 @@
         <h4 class="modal-title"><%- model.get('name') %></h4>
       </div>
       <div class="modal-body">
-        <div class="panel-body">
-          <div class="read">
+
+          <div class="read panel-body">
             <div class="item-actions">
-              <button class="btn btn-default" disabled><i class="fa fa-print"></i> Print</button>
-              <button class="btn btn-default"><i class="fa fa-cube"></i> 3d View</button>
+              <!--<button class="btn btn-default" disabled><i class="fa fa-print"></i> Print</button>
+              <button class="btn btn-default"><i class="fa fa-cube"></i> 3d View</button>-->
+              <button class="btn btn-default print-settings"><i class="fa fa-edit"></i> Print Settings</button>
+              <button class="btn btn-default edit"><i class="fa fa-cog"></i> Change Name</button>
 
-
-              <div class="pull-right">
-                <button class="btn btn-default edit"><i class="fa fa-cog"></i></button>
-              </div>
             </div>
 
-            <div class="panel-body">
+            <div class="">
               <div class="preview"><img src="<%- model.get('preview') %>"/></div>
             </div>
           </div>
 
-          <div class="edit hidden">
+          <div class="edit hidden panel-body">
             <div class="form-group">
               <label class="control-label">Name: </label>
               <input type="text" class="form-control name" placeholder="name" value="<%- model.get('name') %>"/>
             </div>
+            <!--
             <div class="form-group">
               <label class="control-label">Sharing: </label>
               <select class="form-control">
@@ -35,20 +34,75 @@
                 <option value="1"<% if (model.get('public')) { %> selected<% } %>>Public</option>
               </select>
             </div>
+          -->
           </div>
+
+
+
+
+
+
+        <div class="panel-body print-settings hidden">
+          <h4>Print Settings</h4>
+          <div class="form-group">
+            <div>
+              <label class="control-label">Resolution: </label>
+            </div>
+            <div class="">
+              <select class="form-control resolution">
+                <option value="low"<%- (model.get('resolution') == 'low' ? ' selected':'') %>>Low</option>
+                <option value="standard"<%- (model.get('resolution') == 'standard' ? ' selected':'') %>>Standard</option>
+                <option value="high"<%- (model.get('resolution') == 'high' ? ' selected':'') %>>High</option>
+              </select>
+            </div>
+          </div>
+
+
+          <div class="form-group">
+            <div>
+              <label class="control-label">Infill</label>
+            </div>
+            <div class="">
+              <select class="form-control infill">
+                 <option value="light"<%- (model.get('infill') == 'light' ? ' selected':'') %>>Light</option>
+                 <option value="standard"<%- (model.get('infill') == 'standard' ? ' selected':'') %>>Standard</option>
+                 <option value="medium"<%- (model.get('infill') == 'medium' ? ' selected':'') %>>Medium</option>
+                 <option value="heavy"<%- (model.get('infill') == 'heavy' ? ' selected':'') %>>Heavy</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="form-group col-xs-6">
+              <label><input type="checkbox" class="print-support"<%- (model.get('support') ? ' checked':'') %>> Print support</label>
+            </div>
+
+            <div class="form-group col-xs-6">
+              <label><input type="checkbox" class="print-brim"<%- (model.get('brim') ? ' checked':'') %>> Print brim</label>
+            </div>
+          </div>
+
+
+
         </div>
-      </div>
+
+      </div> <!-- modal body -->
       <div class="modal-footer">
 
           <div class="edit hidden">
-            <div class="pull-left"><button type="button" class="btn btn-danger delete"><i class="fa fa-remove"></i> Delete</button></div>
-
-            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Cancel</button>
+            <button type="button" class="btn btn-default cancel-edit"><i class="fa fa-close"></i> Cancel</button>
             <button type="button" class="btn btn-default save"><i class="fa fa-check"></i> Save</button>
           </div>
 
           <div class="read">
+            <button type="button" class="btn btn-danger delete pull-left"><i class="fa fa-trash"></i> Delete</button>
+            <button type="button" class="btn btn-default getgcode pull-left"><i class="fa fa-download"></i></button>
             <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+          </div>
+
+          <div class="print-settings hidden">
+            <button type="button" class="btn btn-default cancel-print-settings"><i class="fa fa-close"></i> Cancel</button>
+            <button type="button" class="btn btn-default save-print-settings"><i class="fa fa-check"></i> Save</button>
           </div>
 
       </div>

@@ -4,7 +4,7 @@ var AWS = require('aws-sdk')
   , channel = null
   , sserver = require('./socket_server');
 
-AWS.config.update({region: 'us-west-1'});
+AWS.config.update({region: 'us-west-2'});
 
 var sqs = new AWS.SQS();
 

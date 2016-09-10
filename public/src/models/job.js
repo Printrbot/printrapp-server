@@ -11,7 +11,7 @@ function(
         sync: app.sync,
 
         defaults: {
-            type: 'job'
+          type: 'job'
         },
 
         initialize: function()

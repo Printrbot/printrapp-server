@@ -5,7 +5,7 @@ var db = require('./config/database')
   , http = require('http')
   , _ = require('underscore');
 
-AWS.config.update({region: 'us-west-1'});
+AWS.config.update({region: 'us-west-2'});
 
 
 function sendRenderMessage(project, cb)

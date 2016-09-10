@@ -15,24 +15,28 @@ function(
         {
           'click button.cancel': 'cancel',
           'click button.save': 'save',
-          'click button.delete': 'delete'
+          'click button.delete': 'delete',
+          'keypress': function(e) {
+            if (e.which == 13)
+              this.save();
+          }
         },
 
         initialize: function(pm)
         {
-            this.model = pm;
-            this.template = _.template(Tpl);
+          this.model = pm;
+          this.template = _.template(Tpl);
         },
 
         open: function(callback)
         {
-            $('body').append(this.render());
-            $('#gass').modal();
-            var t = this;
-            $('#gass').on('hidden.bs.modal', function () {
-              t.remove();
-            })
-            this.callback = callback;
+          $('body').append(this.render());
+          $('#gass').modal();
+          var t = this;
+          $('#gass').on('hidden.bs.modal', function () {
+            t.remove();
+          })
+          this.callback = callback;
         },
 
         save: function()
@@ -64,18 +68,17 @@ function(
           var that = this;
           if (confirm("Are you sure you want to delete this project?")) {
             this.model.destroy({
-                'success': function(e) {
-                  app.alert('info', "Project deleted");
-                  app.router.navigate('browser', true);
-                  that.removeModal();
-                },
-                'error': function(e) {
-                  console.info(e);
-                  app.alert('error', 'Unable to delete the project');
-                  that.removeModal();
-                }
+              'success': function(e) {
+                app.alert('info', "Project deleted");
+                app.router.navigate('browser', true);
+                that.removeModal();
+              },
+              'error': function(e) {
+                console.info(e);
+                app.alert('error', 'Unable to delete the project');
+                that.removeModal();
               }
-            );
+            });
           }
         },
 

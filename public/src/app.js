@@ -50,6 +50,7 @@ function(
 	app.selectedPrinter = null;
 	app.protected = false;
 	app.hostUrl = window.location.origin;
+	app.filesUrl = 'https://s3-us-west-2.amazonaws.com/files.printrapp.com/';
 
 	app.sync = function (method, model, options)
 	{

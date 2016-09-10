@@ -19,8 +19,8 @@ var express = require('express')
   , colors = require('colors')
   , _ = require('underscore')
   , temp = '/tmp/'
-  , pendingJobs = [];
-
+  , pendingJobs = []
+  , hat = require('hat');
 
 io.attach(server);
 app.io = io;
@@ -44,10 +44,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 var routes = require('./routes')(app);
 
-
 app.get('/login',  function (req, res)
 {
-    res.render('login', { page: 'login', session: req.session.user });
+  res.render('login', { page: 'login', session: req.session.user });
 });
 
 app.get('/logout',  function (req, res)
@@ -102,11 +101,9 @@ channel.on('job.download', function(e) {
   io.to(e.user).emit('message', { "message": "job.download", "job":e.job, "location": e.location });
 })
 
-
-
 renderMonitor.startPooling(channel);
-slicerMonitor.startPooling(channel);
-socketServer.start(channel);
+//slicerMonitor.startPooling(channel);
+//socketServer.start(channel);
 
 // socket.io authentication
 io.use(function(socket, next) {

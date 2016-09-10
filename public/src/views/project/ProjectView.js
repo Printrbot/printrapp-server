@@ -30,6 +30,7 @@ function(
           $('input.project-item-upload').trigger('click');
           e.stopPropagation();
         },
+        'click button.send-to-printer': 'sendToPrinter',
         'change input.project-photo-upload': 'uploadProjectPhoto',
         'change input.project-item-upload': 'uploadProjectItem'
       },
@@ -117,7 +118,15 @@ function(
     				success: function(r){
               console.info('in success');
               app.alert('info', 'Project preview updated')
-              that.projectModel.fetch();
+              that.projectModel.fetch(
+                {
+                  success: function(e) {
+                    console.info('oh yaya');
+                    that.render();
+                  }
+                }
+              );
+
     				},
     				error: function(err){
     					console.info(err);
@@ -127,6 +136,14 @@ function(
         } else {
           return app.alert('error', 'Invalid file type. Only jpg and png files are supported.')
         }
+      },
+
+      sendToPrinter: function(e)
+      {
+        var url = location.origin + "/api/project/" + this.projectModel.get('_id') + '/' + sessionModel.get('jwt') + '/index';
+        //var url = location.origin + "/12345678";
+        $.get('http://printrbot.local/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
+        app.alert('info', 'Project Sent to printer.');
       },
 
       uploadProjectItem: function(e)
@@ -158,11 +175,19 @@ function(
               'authorization': 'Bearer '+sessionModel.get('jwt')
             },
     				success: function(r){
-              that.projectModel.fetch();
+              app.channel.trigger('item.uploaded', r);
               app.alert('info', 'Project item uploaded. Rendering preview image...')
     				},
     				error: function(err){
-    					console.info(err);
+              app.channel.trigger('item.upload-error', m);
+              var _items = _.filter(items, function(i) {
+                return (i.get('name') != m.get('name'))
+              }, m);
+
+              that.projectModel.set('items', _items);
+              that.render();
+              // remove this temp item from list of items
+
               app.alert('error', 'Unable to upload selected item.');
     				}
     			});
@@ -172,6 +197,7 @@ function(
       },
 
       render: function() {
+
         this.$el.html(this.tpl({ project: this.projectModel }));
 
         this.$el.find('.preview img').on('error', function(i) {

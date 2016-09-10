@@ -2,6 +2,7 @@ var Jimp = require('jimp')
   , Promise = require('bluebird')
   , fs = Promise.promisifyAll(require("fs"));
 
+Promise.promisifyAll(Jimp);
 
 module.exports.scaleToWidth = function(w, p, file)
 {
@@ -41,30 +42,24 @@ module.exports.createAllSizes = function(file) {
   return new Promise(function(resolve, reject) {
 
     var paths = [
-      file.path.replace('.'+file.extension, '_1.'+file.extension),
-      file.path.replace('.'+file.extension, '_2.'+file.extension),
+      file.path.replace('.'+file.extension, '_1.png'),
+      file.path.replace('.'+file.extension, '_2.png'),
       file.path.replace('.'+file.extension, '.raw')
     ];
 
-    return Jimp.read(file.path)
+    Jimp.readAsync(file.path)
     .then(function(j) {
       // create preview
-      return j.resize(735, Jimp.AUTO)
-      .write(paths[0]);
-    })
-    .then(function(j) {
-      // create grid image
-      return j.cover(270, 240)
-        .write(paths[1]);
-    })
-    .then(function(j) {
-      // create raw image
-      // create grid image
-        j.dither565();
+      j.resize(735, Jimp.AUTO)
+      .write(paths[0])
+      j.cover(270, 240)
+      .write(paths[1])
+      .dither565(function(err, j) {
+
         var c = 0;
-        var buf = new Buffer((j.bitmap.width * j.bitmap.height)*2);
-        for (var x=0;x<j.bitmap.width;x++) {
-          for (var y=0;y<j.bitmap.height;y++) {
+        var buf = new Buffer((270*240)*2);
+        for (var x=0;x<270;x++) {
+          for (var y=0;y<240;y++) {
             var b = j.getPixelColor(x,y);
             var rgba = Jimp.intToRGBA(b);
             var _p = rgba.r << 8 | rgba.g << 3 | rgba.b >> 3;
@@ -72,14 +67,15 @@ module.exports.createAllSizes = function(file) {
             c+=2;
           }
         }
-        fs.writeFile(paths[2], buf);
-        // add timeout to allow file write process to finish
-        // for some reason event is returned before
-        // it finishes, so adding delay here helps,
-        // but should be researched more and fixed
-        setTimeout(function() {
-          resolve(paths);
-        }, 1000);
+
+        fs.writeFileAsync(paths[2], buf)
+        .then(function(r) {
+          console.info("DONE WRITING FILE...")
+          setTimeout(function() {
+              resolve(paths);
+          }, 1000)
+        })
+      })
     })
     .catch(function (err) {
       console.info(err);

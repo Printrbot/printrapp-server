@@ -6,21 +6,6 @@
       </div>
       <div class="modal-body">
         <div class="panel-body">
-<% if (printers.length > 1) { %>
-          <div class="form-group">
-            <div>
-              <label class="control-label">Printer</label>
-            </div>
-            <div class="">
-              <select class="form-control printer selectpicker">
-                <% printers.each(function(p) { %>
-                 <option value="<%- p.get('sn') %>"><%- p.get('model') %> <span style="font-size: 11px"><%- p.get('sn') %></span></option>
-                <% }) %>
-              </select>
-            </div>
-          </div>
-<% } %>
-
           <div class="form-group">
             <div>
               <label class="control-label">Quality: </label>

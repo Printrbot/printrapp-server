@@ -2,8 +2,7 @@ var jwt = require('jsonwebtoken')
   , ac = require('../config/aws')
   , Promise = require('bluebird');
 
-function verifyHeader(headers)
-{
+function verifyHeader(headers) {
   return new Promise(function(resolve, reject) {
     var e = new Error('Invalid authentication');
     if (headers && headers.authorization) {
@@ -23,6 +22,20 @@ function verifyHeader(headers)
   });
 }
 
+function verifyJwt(token) {
+  return new Promise(function(resolve, reject) {
+    var e = new Error('Invalid authentication');
+    if (token) {
+        var ud = jwt.verify(token, ac.secret);
+        if (ud) resolve(ud);
+        else reject(e)
+    } else {
+      reject(e);
+    }
+  });
+}
+
 module.exports = {
-  verifyHeader: verifyHeader
+  verifyHeader: verifyHeader,
+  verifyJwt: verifyJwt
 }

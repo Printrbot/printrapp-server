@@ -12,12 +12,18 @@ function(
     sync: app.sync,
 
     defaults: {
-      type: 'project_item'
+      type: 'project_item',
+      resolution: 'standard',
+      infil: 'standard',
+      support: false,
+      brim: false
     },
 
     initialize: function(o)
     {
-
+      if (o.project) {
+        this.urlRoot = this.urlRoot.replace(':pid', o.project);
+      }
     }
   })
 

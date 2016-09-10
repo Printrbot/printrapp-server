@@ -9,7 +9,7 @@ var db = require('../config/database')
   , sserver = require('../socket_server')
   , shortid = require('shortid');
 
-AWS.config.update({region: 'us-west-1'});
+AWS.config.update({region: 'us-west-2'});
 
 module.exports = function(app) {
     app.get('/api/jobs', function(req,res) {
@@ -30,7 +30,6 @@ module.exports = function(app) {
 
     app.post('/api/job/:project_id', function(req, res)
     {
-
         var udata = checkAuth.verifyHeader(req.headers);
         if (!udata) {
             return res.sendStatus(401);
@@ -79,7 +78,6 @@ module.exports = function(app) {
                   createJob(project);
               }
           });
-
         }
 
         function createJob(project)
@@ -153,11 +151,7 @@ module.exports = function(app) {
           // start downloading the file....
 
           channel.emit('job.download', {user: uid, job: shortid, location: gcode });
-
-
         }
-
-
     })
 
     app.get('/api/job/:id', function(req, res)
@@ -212,6 +206,4 @@ module.exports = function(app) {
             });
         }
     });
-
-
 };

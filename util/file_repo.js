@@ -10,7 +10,7 @@ var db = require('../config/database')
   , Promise = require('bluebird')
   , fs = Promise.promisifyAll(require("fs"));
 
-AWS.config.update({region: 'us-west-1'});
+AWS.config.update({region: 'us-west-2'});
 AWS.config.setPromisesDependency(Promise);
 
 var s3 = new AWS.S3({params: {Bucket: ac.bucket}});
@@ -45,17 +45,16 @@ module.exports.uploadToS3 = function(file_path, content_type, s3uploadpath)
         ACL: 'public-read',
         ContentType: content_type
       }
-      console.info("UPLOADING");
       return s3.uploadAsync(params);
     })
     .then(function(floc) {
       // remove local file
       return fs.unlinkAsync(file_path)
       .then(function () {
-        console.info("DONE DELETING");
         return resolve(floc);
       })
-    }).catch(function(err) {
+    })
+    .catch(function(err) {
       console.info("ERROR:", err);
     })
   });

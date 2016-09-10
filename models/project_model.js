@@ -128,7 +128,6 @@ module.exports.createItem = function(data)
   return new Promise(function(resolve, reject) {
     data.type = 'project_item';
     data.created_at = new Date().getTime();
-    data.public = false;
     data._id = data.id;
     db.insert(data, [], function(err, item) {
       console.info("INSERTED ", item);
@@ -143,9 +142,7 @@ module.exports.updateItem = function(data)
   return new Promise(function(resolve, reject) {
     data.type = 'project_item';
     data.updated_at = new Date().getTime();
-    console.info("UPDATING PROJECT ITEM", data)
     db.insert(data, [], function(err, item) {
-      console.info("DONE", item)
       if (err) reject(err);
       else resolve([data, item]);
     });

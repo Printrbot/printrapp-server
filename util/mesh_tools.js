@@ -6,17 +6,18 @@ var Jimp = require('jimp')
 module.exports.fixStl = function(file_path)
 {
   return new Promise(function(resolve, reject) {
-    var cmd = 'admesh --write-binary-stl='+file_path+' '+file_path;
+    var cmd = 'admesh --write-binary-stl=./'+file_path+' ./'+file_path;
     exec(cmd, function callback(err, stdout, stderr) {
+      console.info(stdout);
+      console.info(stderr);
       if (err) {
         console.info("ERROR IN ADMESH", err)
-        reject(err);
+        // allow it still to upload
       }
       else if (stderr) {
         console.info("stdERROR IN ADMESH", stderr)
-        reject(stderr);
       }
-      else resolve(file_path);
+      resolve(file_path);
     });
   })
 }

@@ -140,9 +140,12 @@ function(
 
       sendToPrinter: function(e)
       {
-        var url = location.origin + "/api/project/" + this.projectModel.get('_id') + '/' + sessionModel.get('jwt') + '/index';
+        var url = "http://files.printrapp.com/u/"+this.projectModel.get('user')+'/p/'+this.projectModel.get('_id')+'/'+this.projectModel.get('idx');
         //var url = location.origin + "/12345678";
+
+        // TODO update to dynamic printr name, not hardcoded
         $.get('http://printrbot.local/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
+        console.info('http://printrbot.local/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
         app.alert('info', 'Project Sent to printer.');
       },
 

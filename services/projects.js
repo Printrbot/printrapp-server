@@ -56,6 +56,7 @@ module.exports = function(app) {
     });
   });
 
+/*
   app.get('/api/project/:id/:jwt/index', function(req, res)
   {
     checkAuth.verifyJwt(req.params.jwt)
@@ -64,7 +65,6 @@ module.exports = function(app) {
       return ProjectModel.getProjectByIdAndUser(req.params.id, udata.id);
     })
     .then(function(project) {
-
       // find all the project items
       return ProjectModel.getProjectItems(project._id)
       .then(function(items) {
@@ -75,6 +75,8 @@ module.exports = function(app) {
     .then(function(project) {
       // build index file for project
       // that printer can download and read
+
+      console.info(project);
       console.info("GOT TO STREAM STUFF")
       BotFiles.streamProjectIndex(res, project);
     })
@@ -84,7 +86,7 @@ module.exports = function(app) {
       return res.sendStatus(400);
     });
   });
-
+*/
   app.post('/api/project', function(req, res)
   {
     checkAuth.verifyHeader(req.headers)
@@ -186,38 +188,55 @@ module.exports = function(app) {
     })
     .then(function(item) {
       console.info(item);
+      var sliceit = false;
+      var reindex = false;
+      if (req.body.hasOwnProperty("resolution")
+        && req.body.resolution != item.resolution)
+          sliceit = true;
+      if (req.body.hasOwnProperty("support")
+        && req.body.support != item.support)
+          sliceit = true;
+      if (req.body.hasOwnProperty("brim")
+        && req.body.brim != item.brim)
+          sliceit = true;
+      if (req.body.hasOwnProperty("infill")
+        && req.body.infill != item.infill)
+          sliceit = true;
+
+      if (req.body.hasOwnProperty("name")
+        && req.body.name != item.name)
+          reindex = true;
+
       _.each(req.body, function(v,k,l) {
         if (!_.contains(['id','_id','_rev','user'], k))
           item[k] = v;
       });
-      return ProjectModel.updateItem(item);
+
+      return ProjectModel.updateItem(item)
+      .then(function(item) {
+        return [item, sliceit, reindex]
+      });
     })
-    .then(function(item) {
+    .spread(function(item, sliceit, reindex) {
       // call lambda slicer
-      // (only if stuff changed) todo
-      var lambda = new AWS.Lambda({
-          region: ac.region
-      });
+      // (only if stuff changed)
+      if (sliceit) {
+        BotFiles.slice(item[0])
+      }
 
-      lambda.invoke({
-        FunctionName: 'slice-dev-testcura',
-        Payload: JSON.stringify(item[0])
-      }, function(err, data) {
-        if (err) {
-          console.log(err, err.stack);
-          return [item[0], err];
-        }
-        else {
-          console.info("Done with lambda");
-
-          var output = JSON.parse(data.Payload);
-          if (output.errorMessage) {
-            console.log("ERROR:");
-            console.log(output.errorMessage);
-          }
-          console.log("all good");
-        }
-      });
+      if (reindex) {
+        ProjectModel.getProjectByIdAndUser(item[0].project, item[0].user)
+        .then(function(project) {
+          return ProjectModel.getProjectItems(item[0].project)
+          .then(function(items) {
+            project.items = items;
+            return project;
+          })
+        })
+        .then(function(projectWithItems) {
+          BotFiles.reindex(projectWithItems)
+        })
+      }
     })
     .catch(function(err) {
       // error
@@ -268,12 +287,28 @@ module.exports = function(app) {
             project.preview = preview.Location;
             project.thumbnail = thumb.Location;
             project.rawimage = raw.Location;
-
-            return ProjectModel.update(project);
+            return ProjectModel.update(project).then(function(r) {
+              return project;
+            })
           })
         }
       })
       .then(function(project) {
+        // reindex
+        console.info(project);
+        ProjectModel.getProjectItems(project._id)
+        .then(function(items) {
+          project.items = items;
+          return project;
+        })
+        .then(function(projectWithItems) {
+          return BotFiles.reindex(projectWithItems);
+        })
+        .then(function(output) {
+          console.info(output);
+          console.info("DONE WITH REINDEX");
+        })
+
         res.json(project);
       })
     })
@@ -345,42 +380,23 @@ module.exports = function(app) {
         })
       })
     })
-    /*
     .spread(function(project, item) {
-      // add this item id to project
-      console.info("ADDING ITEM TO PROJECT ", item, project)
-      var _items = project.items ? project.items : [];
-      _items.push(item.id);
-      project.items = _items;
-      return ProjectModel.update(project);
-    })
-    */
-    .spread(function(project, item) {
+      // slice it
+      BotFiles.slice(item);
 
-      console.info("calling lambda slicer ", item)
-      var lambda = new AWS.Lambda({
-          region: ac.region
-      });
-
-      lambda.invoke({
-        FunctionName: 'slice-dev-testcura',
-        Payload: JSON.stringify(item)
-      }, function(err, data) {
-        if (err) {
-          console.log(err, err.stack);
-          return [item, err];
-        }
-        else {
-          console.info("Done with lambda");
-          var output = JSON.parse(data.Payload);
-          if (output.errorMessage) {
-            console.log("ERROR:");
-            console.log(output.errorMessage);
-          }
-          console.log("all good");
-        }
-      });
-
+      // and reindex
+      ProjectModel.getProjectItems(project._id)
+      .then(function(items) {
+        project.items = items;
+        return project;
+      })
+      .then(function(projectWithItems) {
+        return BotFiles.reindex(projectWithItems);
+      })
+      .then(function(output) {
+        console.info(output);
+        console.info("DONE WITH REINDEX");
+      })
       return res.json(project);
     })
     .catch(function(err) {

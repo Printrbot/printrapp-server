@@ -41,11 +41,13 @@ module.exports.reindex = function(projectWithItems)
   });
 }
 
-module.exports.slice = function(res, item) {
+module.exports.slice = function(item) {
   return new Promise(function(resolve, reject) {
     var lambda = new AWS.Lambda({
       region: ac.region
     });
+
+    console.info("RESLICING:", item);
 
     lambda.invoke({
       FunctionName: 'slice-dev-testcura',

@@ -1,0 +1,13 @@
+extends layout
+block maincontent
+  div.container
+    div.row
+      div.col-xs-12
+      if (verified)
+        h1 Thanks for verifying your email
+      else
+        h1 Verification failed
+        p= error
+      p
+        a(href='/#login') Click here
+        span  to go to login form

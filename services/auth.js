@@ -5,117 +5,131 @@ var db = require('../config/database')
   , color = require('colors')
   , _ = require('underscore')
   , jwt = require('jsonwebtoken')
+  , UserModel = require('../models/user_model')
+  , Mailer = require('../util/mailer');
 
 
 module.exports = function(app)
 {
-    app.post('/api/login', function(req, res)
-    {
-        if (!req.body.email || !req.body.passwd)
-            return res.sendStatus(401);
+  app.post('/api/login', function(req, res)
+  {
+    if (!req.body.email || !req.body.passwd)
+        return res.sendStatus(401);
 
-        db.view("users", "list", {keys: [req.body.email]}, function(err, data)
-        {
-            if (err) {
-                return res.sendStatus(401);
-            }
+    UserModel.authenticateUser(req.body.email, req.body.passwd)
+    .then(function(user) {
+      // check if verified
+      if (!user.verified)
+        throw new Error("User not verified");
+      // check if active
+      if (!user.active)
+        throw new Error("User not active");
+      // all good
+      var _user = {
+          email: user.email,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          id: user._id
+      }
+      var token = jwt.sign(_user, awsc.secret);
+      res.json({login: true, 'jwt':token});
+    })
+    .catch(function(err) {
+      console.log(err)
+      return res.json({login: false});
+    })
+  });
 
-            if (data.rows.length > 0) {
-              var u = data.rows[0].value;
+  app.post('/api/register', function(req, res) {
+    // verify that we have all required fields
+    var required = ['first_name', 'last_name', 'email', 'password'];
+    var valid = true;
+    _.each(required, function(r) {
+      if (!req.body[r])
+        valid = false;
+    }, this)
 
-              if (sha1(req.body.passwd + awsc.secret) == u.password && u.active == true)
-              {
-                var _user = {
-                    email: data.rows[0].value.email,
-                    first_name: data.rows[0].value.first_name,
-                    last_name: data.rows[0].value.last_name,
-                    id: data.rows[0].id
-                  }
-                  var token = jwt.sign(_user, awsc.secret);
-                  console.info(_user);
-                  console.info(token);
-                  res.json({'jwt':token});
-              } else {
-                  return res.sendStatus(401);
-              }
-            } else {
-                return res.sendStatus(401);
-            }
-        });
-    });
+    if (!valid) {
+      return res.sendStatus(400);
+    }
 
-    app.post('/api/register', function(req, res)
-    {
-        // verify that we have all required fields
-        var required = ['first_name', 'last_name', 'email', 'password'];
-        var valid = true;
-        _.each(required, function(r) {
-          if (!req.body[r])
-            valid = false;
-        }, this)
+    function firstUpper(string) {
+      string = string.toLowerCase();
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
 
-        if (!valid) {
-          return res.sendStatus(400);
+    var first_name = firstUpper(req.body.first_name)
+      , last_name = firstUpper(req.body.last_name)
+      , email = req.body.email.toLowerCase()
+      , token = hat();
+
+    // verify email format and password length
+    var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+    if (!re.test(email))
+      return res.json({ status: 'error', message: 'Invalid email format' });
+
+    if (req.body.password.length < 4)
+      return res.json({ status: 'error', message: 'Password must be at least 4 characters long' });
+
+    UserModel.getUserByEmail(email)
+    .then(function(user) {
+      if (user.rows.length == 0) {
+        // create user
+        var ud = {
+          email: email,
+          first_name: first_name,
+          last_name: last_name,
+          password: sha1(req.body.password + awsc.secret),
+          active: false,
+          verified: false,
+          token: token
         }
+        UserModel.create(ud)
+        .then(function(user) {
+          console.info("USER CREATED");
+          // send registration email
+          return Mailer.sendVerificationEmail(email, token)
+        })
+        .then(function(e) {
+          res.json({ status: 'success'});
+        })
+      } else {
+        // already exists
+        res.json({ status: 'error', message: 'Email already registered'});
+      }
+    })
+    .catch(function(err) {
+      console.info("DB ERROR FETCHING USER BY EMAIL");
+      console.error(err);
+      res.json({status: 'error', message: 'Internal error, please try again'})
+    })
+  });
 
-        function firstUpper(string) {
-          string = string.toLowerCase();
-          return string.charAt(0).toUpperCase() + string.slice(1);
-        }
+  app.get('/user/verify', function(req, res) {
+    UserModel.getUserByEmail(req.query.email)
+    .then(function(user) {
+      // check if verified
+      if (user.vefiried)
+        throw new Error('User already verified');
+      // verify
+      console.info(req.query)
+      if (user.token != req.query.verify)
+        throw new Error('Invalid verification');
 
-        var first_name = firstUpper(req.body.first_name)
-          , last_name = firstUpper(req.body.last_name)
-          , email = req.body.email.toLowerCase();
+      delete user.token;
+      user.verified = true;
+      user.active = true;
+      UserModel.update(user)
+      .then(function(u) {
+        res.render('verify', { verified: true });
+      })
 
+      // activate
+    })
+    .catch(function(err) {
+      // show error message
+      res.render('verify', { verified: false, error: err });
+    })
+  });
 
-        // verify email format and password length
-        var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
-        if (!re.test(email))
-          return res.json({ status: 'error', message: 'Invalid email format' });
-
-        if (req.body.password.length < 4)
-          return res.json({ status: 'error', message: 'Password must be at least 4 characters long' });
-
-        // make sure that email is not registered already...
-        db.view("users", "list", {keys: [email]}, function(err, data)
-        {
-          console.info(req.body);
-            if (err) {
-                console.info(err.red);
-                return res.sendStatus(500);
-            }
-
-            if (data.rows.length == 0) {
-                var ud = {
-                  email: email,
-                  first_name: first_name,
-                  last_name: last_name,
-                  password: sha1(req.body.password + awsc.secret),
-                  type: 'user',
-                  active: true
-                }
-
-                // create user
-                db.insert(ud, [], function(err, _user) {
-                  if (err) {
-                    console.info(err.red);
-                    return res.sendStatus(500);
-                  } else {
-                    // success
-                    ud.id = _user.id;
-                    console.info(ud);
-                    return res.json({status:'success'})
-                  }
-                })
-
-            } else {
-                res.json({ status: 'error', message: 'User already registered' });
-            }
-        });
-    });
-
-    app.get('/join', function(req,res)
-    {
-
-    });
 };

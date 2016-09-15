@@ -101,6 +101,7 @@ function(
 	sessionModel.bind('change:authenticated', function(c) {
 		if (c.get('authenticated') == true) {
 			// fetch user profile
+
 			var uid = sessionModel.getId();
 			profileModel.set({id: uid});
 			profileModel.fetch({ headers: {'Authorization' :'Bearer '+sessionModel.get('jwt')}});

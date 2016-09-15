@@ -64,8 +64,14 @@ function(
           }
         })
         .done(function(msg) {
-          sessionModel.set({authenticated: true, jwt: msg.jwt});
-          sessionModel.save();
+          if (msg.login) {
+            sessionModel.set({authenticated: true, jwt: msg.jwt});
+            sessionModel.save();
+          } else {
+            app.alert('error', 'Invalid login, please try again');
+            $('.login-form').show();
+            $('.loader').hide();
+          }
         })
         .fail(function( jqXHR, textStatus ) {
           app.alert('error', 'Invalid login, please try again');

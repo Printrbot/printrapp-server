@@ -81,7 +81,7 @@ function(
                 }
 
                 if (msg.status == "success") {
-                  app.alert('info', "Success");
+                  app.alert('info', "Success, please check your email");
                 };
 
                 Backbone.history.navigate('login', true);

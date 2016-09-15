@@ -73,7 +73,7 @@ module.exports = function(app)
 
     UserModel.getUserByEmail(email)
     .then(function(user) {
-      if (user.rows.length == 0) {
+      if (!user) {
         // create user
         var ud = {
           email: email,

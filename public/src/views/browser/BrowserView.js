@@ -35,16 +35,15 @@ function(
     {
         this.tpl = _.template(Tpl);
 
-        this.listenTo(projectsCollection, 'all', function(e) {
-          if (_.indexOf(['sync', 'destroy', 'add'], e) != -1) {
+        this.listenTo(projectsCollection, 'sync', function(e) {
+          //if (_.indexOf(['sync', 'destroy', 'add'], e) != -1) {
             this.projects = projectsCollection.models;
             this.render();
-          }
+          //}
         }, this);
 
         this.listenTo(app.channel, 'filter-projects', function(e) {
-          this.projects = e;
-          this.render();
+          this.renderProjectsGrid(e);
         })
 
         this.pendingUpload = [];
@@ -156,6 +155,27 @@ function(
             });
         },
 
+        renderProjectsGrid: function(projects)
+        {
+          console.info('rendering grid')
+          var pb = this.$el.find('.projects-pan');
+
+          var pbc = pb.find('div.create-project').clone();
+          pb.empty();
+
+          pb.append(pbc);
+
+          _.each(this.pendingProjects, function(p) {
+              pb.append(new ProjectThumbView({'model':p}).render());
+          });
+
+          _.each(projects, function(p) {
+              var v = this.loadView(new ProjectThumbView({'model':p}), 'pt'+p.cid);
+              pb.append(v.render());
+          }, this);
+
+        },
+
         render: function()
         {
             this.$el.html(this.tpl({ search: this.search }));
@@ -164,18 +184,7 @@ function(
 
             this.$el.find('.search-block').append(s.render());
 
-            var pb = this.$el.find('.projects-pan');
-
-    				_.each(this.pendingProjects, function(p) {
-    					  pb.append(new ProjectThumbView({'model':p}).render());
-    				});
-
-            _.each(this.projects, function(p) {
-
-                var v = this.loadView(new ProjectThumbView({'model':p}), 'pt'+p.cid);
-      					pb.append(v.render());
-    				}, this);
-
+            this.renderProjectsGrid(this.projects);
 
             return this.$el;
         }

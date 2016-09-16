@@ -29,7 +29,7 @@ function(
         {
             var s = $(e.currentTarget).val().trim();
             var filtered = projectsCollection.filter(function(item) {
-                return item.get("originalname").toLowerCase().indexOf(s.toLowerCase()) > -1
+                return item.get("name").toLowerCase().indexOf(s.toLowerCase()) > -1
             });
             app.channel.trigger('filter-projects', filtered);
         },

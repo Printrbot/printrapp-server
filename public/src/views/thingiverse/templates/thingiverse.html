@@ -1,0 +1,22 @@
+<div class="col-xs-12">
+  <h1>Thingiverse Collections</h1>
+</div>
+
+<% if (tvConnecting) { %>
+<div>
+  <div class="col-sm-12 alert alert-info">Loading collections, please wait...</div>
+</div>
+<% } else { %>
+
+<% if (!tvConnected) {%>
+<div class="project-block connect col-lg-2 col-md-3 col-sm-3 col-xs-6">
+  <div class="preview-block">
+    <img src="/images/connect_thingiverse.svg" style="width: 100%">
+  </div>
+  <div class="project-footer">
+    <div class="project-name">Connect Thingiverse</div>
+  </div>
+</div>
+<% } %>
+<div class="tv-collections"></div>
+<% } %>

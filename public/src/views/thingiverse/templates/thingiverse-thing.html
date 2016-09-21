@@ -1,0 +1,39 @@
+<% if (!thing.get('name')) { %>
+<div class="col-xs-12">
+  <h1>Loading Thing</h1>
+</div>
+<div class="col-xs-12">
+<div class="alert alert-info">Loading thing, please wait</div>
+</div>
+<% } else { %>
+  <div class="col-xs-12">
+    <h1><%- thing.get('name') %></h1>
+  </div>
+
+  <div class="col-xs-12 col-md-4">
+
+
+    <div class="panel">
+      <div class="preview" style="min-height:100px">
+        <img class="" src="<%- (thing.get('thumbnail').replace('thumb_medium', 'preview_featured')) %>"/>
+      </div>
+      <div class="panel-body">
+        <button class="btn btn-default import-thing"><i class="fa fa-download"></i> Import</button>
+
+        <button class="btn btn-tv tvlink pull-right"><img src="/images/thingiverse.svg" style="height: 1.3em"/></button>
+      </div>
+    </div>
+    <% if (thing.get('description')) { %>
+    <div class="panel project-description">
+      <div class="panel-body">
+        <%= thing.get('description').replace(new RegExp('\r?\n', 'g'), '<br />') %>
+      </div>
+    </div>
+    <% } %>
+  </div>
+<% } %>
+
+<div class="col-xs-12 col-md-8">
+  <div class="tv-files">
+  </div>
+</div>

@@ -28,6 +28,10 @@ function(
       'printer/register': 'showRegisterPrinter',
       'jobs':'showJobs',
       'project/:id':'showProject',
+      'thingiverse': 'showThingiverse',
+      'thingiverse/:id': 'showThingiverse',
+      'thingiverse/collection/:tvcid': 'showThingiverseCollection',
+      'thingiverse/thing/:pid': 'showThingiverseThing',
       'logout':'logOut'
     },
 
@@ -63,6 +67,34 @@ function(
     {
       app.selectedView = 'printers';
       app.protected = true;
+      this.topView.render();
+    },
+
+    showThingiverse: function(e)
+    {
+      app.selectedView = 'thingiverse';
+      app.protected = true;
+      this.topView.render();
+    },
+
+    showThingiverseCollection: function(tvcid)
+    {
+      if (!tvcid)
+        Backbone.history.navigate('thingiverse', true)
+      app.selectedView = 'thingiverse-collection';
+      app.protected = true;
+      app.selectedThingiverseCollection = tvcid
+      this.topView.render();
+    },
+
+    showThingiverseThing: function(pid)
+    {
+      if (!pid)
+        Backbone.history.navigate('thingiverse', true)
+
+      app.selectedView = 'thingiverse-thing';
+      app.protected = true;
+      app.selectedThingiverseThing = pid;
       this.topView.render();
     },
 

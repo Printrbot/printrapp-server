@@ -12,8 +12,8 @@ function(
     localStorage: new Backbone.LocalStorage('user'),
 
     defaults: {
-        authenticated: false,
-        jwt: null
+      authenticated: false,
+      jwt: null
     },
 
     getId: function()

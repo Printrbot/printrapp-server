@@ -121,12 +121,9 @@ io.use(function(socket, next) {
 io.sockets.on('connection', function (socket)
 {
     // auto join socket to user room when connected
-
+    
     // if user is logged in join its broadcast room
-
     socket.join(socket.handshake.id);
-
-
     console.info('joining room '.green, socket.handshake.id.red);
 
     socket.on('message', function(e) {

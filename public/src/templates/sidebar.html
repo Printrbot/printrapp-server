@@ -3,6 +3,8 @@
     <li<% if (selectedView=='browser' || selectedView=='project') { %> class="active"<% } %>>
       <a href="#browser"><i class="fa fa-cube fa-lg"></i></a>
     </li>
-
+    <li<% if (_.contains(['thingiverse', 'thingiverse-collection', 'thingiverse-thing'], selectedView)) { %> class="active tv"<% } %>>
+      <a href="#thingiverse"><img src="/images/thingiverse.svg" style="width:30px;margin-left:-10px;"/></a>
+    </li>
 
 </ul>

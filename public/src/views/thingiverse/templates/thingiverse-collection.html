@@ -1,0 +1,18 @@
+<% if (!collection.get('name')) { %>
+<div class="col-xs-12">
+  <h1>Loading Collection</h1>
+</div>
+<div class="col-xs-12">
+<div class="alert alert-info">Loading things, please wait</div>
+</div>
+<% } else { %>
+
+<div class="col-xs-12">
+  <h1><%- collection.get('name') %></h1>
+</div>
+
+<% } %>
+
+<div class="tv-projects">
+
+</div>

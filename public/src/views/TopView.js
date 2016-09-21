@@ -12,7 +12,10 @@ define([
   'views/printers/RegisterPrinterView',
   'views/jobs/JobsView',
   'views/project/ProjectView',
-  'views/browser/SearchBarView'
+  'views/browser/SearchBarView',
+  'views/thingiverse/ThingiverseView',
+  'views/thingiverse/TvCollectionView',
+  'views/thingiverse/TvThingView'
 ],
 
 function(
@@ -29,7 +32,10 @@ function(
    RegisterPrinterView,
    JobsView,
    ProjectView,
-   SearchBarView
+   SearchBarView,
+   ThingiverseView,
+   TvCollectionView,
+   TvThingView
 )
 {
 
@@ -84,6 +90,18 @@ function(
       }
       else if (app.selectedView == 'printers') {
         var b = this.loadView(new PrintersView(), 'printers');
+        e.append(b.render());
+      }
+      else if (app.selectedView == 'thingiverse') {
+        var b = this.loadView(new ThingiverseView(), 'thingiverse');
+        e.append(b.render());
+      }
+      else if (app.selectedView == 'thingiverse-collection') {
+        var b = this.loadView(new TvCollectionView(), 'thingiverse-collection');
+        e.append(b.render());
+      }
+      else if (app.selectedView == 'thingiverse-thing') {
+        var b = this.loadView(new TvThingView(), 'thingiverse-thing');
         e.append(b.render());
       }
       else if (app.selectedView == 'register-printer') {

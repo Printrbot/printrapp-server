@@ -15,11 +15,6 @@ function(
           printers: []
         },
 
-        initialize: function()
-        {
-
-        },
-
         addPrinter: function(printer)
         {
           var p = this.get('printers');

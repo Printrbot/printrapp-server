@@ -129,6 +129,10 @@ button.login-btn {
   padding: 0;
 }
 
+.bootbox .modal-body {
+  padding:15px;
+}
+
 .btn {
   position: relative;
   padding: 8px 12px;
@@ -188,6 +192,10 @@ button.login-btn {
 
 }
 
+.btn-tv {
+  background-color: #228BFA;
+}
+
 .btn-lg {
   padding: 10px 16px !important;
   font-size: 16px !important;
@@ -205,8 +213,9 @@ button.login-btn {
 }
 
 .btn-primary {
-  color: rgba(255, 255, 255, 0.8);
-  background-color: /* #19BC9C*/ #3498db !important;
+  color: white;
+  background-color: #222222;
+  border-radius: 0;
   border-color: transparent;
 }
 .panel-heading .btn-action {
@@ -1024,12 +1033,16 @@ button.disconnect {
   background-color: #212121;
 }
 
+.sidebar .nav>li.active.tv {
+  background-color: #228BFA;
+}
+
 .sidebar .nav>li.active a {
   text-shadow: none;
 }
 
 .sidebar .nav>li>a {
-  color: #666 ;
+  color: white ;
   position: relative;
   display: block;
   padding: 10px 5px 10px 10px;

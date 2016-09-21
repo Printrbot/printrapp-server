@@ -12,10 +12,23 @@ module.exports = function(app)
     {
       checkAuth.verifyHeader(req.headers)
       .then(function(udata) {
+        console.info(udata)
         if (udata.id != req.params.id)
           throw new Error('Unauthorized');
         return UserModel.getUser(udata.id);
-      }).catch(function(err) {
+      })
+      .then(function(user) {
+        var u = {};
+        u.first_name = user.first_name;
+        u.last_name = user.last_name;
+        u.printers = [];
+        u.email = user.email;
+        u.thingiverse_token = user.thingiverse_token;
+        u.thingiverse = user.thingiverse;
+        res.json(u);
+      })
+      .catch(function(err) {
+        console.info(err);
         return res.sendStatus(400);
       })
     });

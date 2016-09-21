@@ -66,6 +66,20 @@ function(
 		Backbone.sync(method, model, options);
 	};
 
+	app.syncTv = function (method, model, options)
+	{
+    if (sessionModel.get('authenticated') && profileModel.get('thingiverse_token'))
+    {
+      options =  _.extend({
+        beforeSend: function(xhr) {
+          var token = 'Bearer ' + profileModel.get('thingiverse_token');
+          xhr.setRequestHeader('Authorization', token);
+        }
+      }, options)
+    }
+		Backbone.sync(method, model, options);
+	};
+
 	sessionModel.sync = app.sync;
 
 	app.alert = function(type, text)
@@ -101,7 +115,6 @@ function(
 	sessionModel.bind('change:authenticated', function(c) {
 		if (c.get('authenticated') == true) {
 			// fetch user profile
-
 			var uid = sessionModel.getId();
 			profileModel.set({id: uid});
 			profileModel.fetch({ headers: {'Authorization' :'Bearer '+sessionModel.get('jwt')}});

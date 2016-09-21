@@ -29,6 +29,7 @@
     "nano": "^6.2.0",
     "react-tools": "^0.13.3",
     "request": "^2.39.0",
+    "request-promise": "^4.1.1",
     "sha1": "*",
     "shortid": "^2.2.4",
     "socket.io": "^1.3.5",

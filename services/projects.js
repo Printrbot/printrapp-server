@@ -15,6 +15,7 @@ var db = require('../config/database')
   , MessageQueue = require('../util/message_queue')
   , MeshTools = require('../util/mesh_tools')
   , BotFiles = require('../util/bot_files')
+  , ImportTools = require('../util/import_tools')
 
 
 module.exports = function(app) {
@@ -92,18 +93,34 @@ module.exports = function(app) {
     checkAuth.verifyHeader(req.headers)
     .then(function(udata) {
       // verify required params
-      if (!req.body.name)
+      var b = req.body;
+      if (!b.name)
         return res.sendStatus(400);
 
       // insert project
       var data = {
         "user": udata.id,
-        "name": req.body.name,
-        "description": req.body.description,
+        "name": b.name,
+        "description": b.description,
         "idx": hat(32, 16)
       };
+      if (b.repo_src) data.repo_src = b.repo_src;
+      if (b.repo_name) data.repo_name = b.repo_name;
+      //if (b.preview) data.preview = b.preview;
+
       return ProjectModel.create(data);
     })
+    /*
+    .then(function(project) {
+      // if we receive preview image url, run L
+      if (req.body.preview)
+        ImportTools.importProjectPreview(project, req.body.preview);
+
+        console.info(project)
+
+      return project;
+    })
+    */
     .then(function(project) {
       res.json(project);
     })
@@ -385,12 +402,15 @@ module.exports = function(app) {
       BotFiles.slice(item);
 
       // and reindex
+      console.info("REINDEXING")
+      console.info("PROJECT: ", project);
       ProjectModel.getProjectItems(project._id)
       .then(function(items) {
         project.items = items;
         return project;
       })
       .then(function(projectWithItems) {
+        console.info("PROJECT WITH ITEMS: ", projectWithItems)
         return BotFiles.reindex(projectWithItems);
       })
       .then(function(output) {
@@ -442,6 +462,43 @@ module.exports = function(app) {
       // error
       console.info(err);
       return res.sendStatus(400);
+    });
+  });
+
+
+  app.post('/api/project/importthing', function(req, res)
+  {
+    checkAuth.verifyHeader(req.headers)
+    .then(function(udata) {
+      // verify required params
+      var thing = (req.body);
+
+      // create project,
+
+      // run lambda thing importer
+
+      // runLambda(project, thing)
+      if (!thing.name)
+        return res.sendStatus(400);
+
+      // insert project
+      var data = {
+        "user": udata.id,
+        "name": thing.name,
+        "description": thing.description,
+        "idx": hat(32, 16),
+        "repo_src": thing.url,
+        "repo_name": "thingiverse"
+      };
+      return ProjectModel.create(data);
+    })
+    .then(function(project) {
+      res.json(project);
+    })
+    .catch(function(err) {
+      // error
+      console.info(err);
+      res.sendStatus(400);
     });
   });
 

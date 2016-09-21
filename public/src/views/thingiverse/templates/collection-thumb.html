@@ -1,0 +1,11 @@
+<% if (collection.get('thumbnail')) { %>
+<div class="preview-block" idx="<%= collection.get('id') %>">
+  <img src="<%= collection.get('thumbnail').replace('thumb_medium', 'preview_card').replace('thumb_large', 'preview_card') %>" style="width: 100%"/ >
+<% } else { %>
+<div class="preview-block" idx="<%= collection.get('id') %>">
+  <img src="/images/noimage_thumb.png" style="width: 100%"/ >
+<% } %>
+</div>
+<div class="project-footer">
+  <div class="project-name"><%= collection.get('name') %></div>
+</div>

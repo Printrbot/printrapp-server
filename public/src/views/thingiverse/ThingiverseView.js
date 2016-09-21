@@ -23,14 +23,14 @@ function(
   {
     className: 'thingiverse',
     tvConnected: false,
-    tvConnecting: true,
+    tvConnecting: false,
 
     events: {
       'click div.connect': 'getThingiverseAccess'
     },
 
     getThingiverseAccess: function(e) {
-      window.location = "https://www.thingiverse.com/login/oauth/authorize?client_id=47698f5cb23b75a453ca&t=" + userModel.get('jwt');
+      window.location = "https://www.thingiverse.com/login/oauth/authorize?client_id=47698f5cb23b75a453ca&t=" + sessionModel.get('jwt');
     },
 
     initialize: function(o) {
@@ -42,6 +42,7 @@ function(
       }, this);
 
       if (profileModel.get('thingiverse_token')) {
+        this.tvConnecting = true;
         tvCollections.fetch();
       }
     },

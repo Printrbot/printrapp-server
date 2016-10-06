@@ -13,6 +13,7 @@ require.config(
     growl: '../bower_components/bootstrap-growl-injectable/jquery.bootstrap-growl',
     localStorage: '../bower_components/backbone.localStorage/backbone.localStorage',
     bootbox: '../bower_components/bootbox.js/bootbox'
+    //backbone_modelbinder: '../bower_components/backbone.modelBinder/Backbone.ModelBinder'
   },
 
   config: {
@@ -27,6 +28,11 @@ require.config(
         deps: ["underscore", "jquery"],
         exports: "Backbone"
     },
+    /*
+    "backbone_modelbinde": {
+        deps: "backbone"
+    },
+    */
     "underscore": {
         exports: "_"
     },
@@ -40,8 +46,9 @@ require.config(
     "growl": ["jquery"],
     "libs/STLLoader": ["threejs/three"],
     "libs/TrackballControls": ["threejs/three"],
+    //"libs/TransformControls": ["threejs/three"],
     "libs/STLExporter": ["threejs/three"],
-    "main": ["backbone", "bootstrap"],
+    "main": ["backbone", "bootstrap"]
   }
 
 });

@@ -1,9 +1,19 @@
 define([
     'app',
-    'text!./templates/project-item-modal.html',
+    'models/session',
+    'threejs/three',
+    'libs/STLLoader',
+    'libs/STLExporter',
+    'libs/TrackballControls',
+    'text!./templates/project-item-modal.html'
 ],
 function(
     app,
+    sessionModel,
+    threejs,
+    stlloader,
+    stlexporter,
+    tbctrls,
     Tpl
 )
 {
@@ -14,7 +24,7 @@ function(
           'click button.edit': function() {
             this.show('div.edit');
           },
-          'click button.print-settings': function() {
+          'click .psinfo ul': function() {
             this.show('div.print-settings');
           },
           'click button.cancel-print-settings': function() {
@@ -35,10 +45,27 @@ function(
             this.model.save();
             app.alert('info', 'Print settings updated');
             this.show('div.read');
+
           },
           'click button.getgcode': 'getgcode',
           'click button.delete': 'delete',
           'click button.save': 'save',
+          'click button.show-three-dee': 'show3dView',
+          'click button.hflip': function() {
+            this.mesh.rotateZ(-Math.PI / 4);
+            this.centerObject();
+          },
+          'click button.vflip': function() {
+            this.mesh.rotateX(Math.PI / 4);
+            this.centerObject();
+          },
+          'click button.rflip': function() {
+            this.mesh.rotation.z = 0;
+            this.mesh.rotation.x = 0;
+            this.mesh.rotation.y = 0;
+            this.centerObject();
+          },
+          'click button.save-three-dee': 'saveTransformations',
           'keypress': function(e) {
             if (e.which == 13)
               this.save();
@@ -49,6 +76,7 @@ function(
           this.$el.find('div.read').addClass('hidden');
           this.$el.find('div.print-settings').addClass('hidden');
           this.$el.find('div.edit').addClass('hidden');
+          this.$el.find('div.three-dee').addClass('hidden');
           this.$el.find(cls).removeClass('hidden');
         },
 
@@ -58,6 +86,21 @@ function(
           this.model = pim;
           this.edit = false;
           this.template = _.template(Tpl);
+
+          this.listenTo(this.model, 'change', function(e){
+            if (e.changed.support)
+              this.$el.find('span.support').html((e.changed.support?'Yes':'No'));
+            if (e.changed.infill)
+              this.$el.find('span.infill').html(e.changed.infill);
+            if (e.changed.resolution)
+                this.$el.find('span.resolution').html(e.changed.resolution);
+          }, this);
+
+          this.listenTo(app.channel, 'render.completed', function(e) {
+            this.model.set(e.data);
+            this.$el.find('.preview img').attr('src', e.data.preview);
+          }, this)
+
         },
 
         open: function(callback)
@@ -97,8 +140,7 @@ function(
           }
         },
 
-        save: function()
-        {
+        save: function() {
           if (!$('.name').val()) {
             $('.name').parent().addClass('has-error');
             return;
@@ -119,9 +161,20 @@ function(
           });
         },
 
-        removeModal: function()
-        {
+        removeModal: function() {
           $('#gass').modal('hide');
+        },
+
+        show3dView: function() {
+          this.show('div.three-dee')
+          console.info('here')
+          this.setupScene();
+
+          this.drawEnvelope();
+          this.loadObject();
+          if (this.renderer) {
+            this.$el.find('.threed-view').prepend(this.renderer.domElement);
+          }
         },
 
         getgcode: function() {
@@ -132,15 +185,207 @@ function(
                               this.model.get('_id') + ".gco";
         },
 
-        render: function()
+        setupScene: function() {
+          var that = this;
+
+          if (typeof this.scene === 'undefined') {
+
+            this.camera = new THREE.PerspectiveCamera( 60, $('.threed-view').width() / $('.threed-view').height(), 1, 10000 );
+            this.camera.position.set(0, -115, 60);
+                //this.camera.up.set( 0, 0, 1 );
+            this.camera.up = new THREE.Vector3(0,0,1);
+            //this.camera.lookAt(new THREE.Vector3(10,0,0));
+            //this.camera.lookAt(new THREE.Vector3(100,100,0));
+
+            this.controls = new THREE.TrackballControls( this.camera, this.$el.find('.threed-view').get(0) );
+            this.controls.rotateSpeed = 1.0;
+            this.controls.zoomSpeed = 1.2;
+            this.controls.panSpeed = 0.8;
+            this.controls.noZoom = false;
+            this.controls.noPan = false;
+            this.controls.target = new THREE.Vector3(0,0,10);
+
+
+            this.controls.staticMoving = true;
+            this.controls.dynamicDampingFactor = 0.3;
+            this.controls.keys = [ 65, 83, 68 ];
+            controls = this.controls;
+            console.info(this.controls);
+
+            this.controls.addEventListener( 'change', function() {
+              that.renderer.render( that.scene, that.camera );
+            });
+
+            // world
+            this.scene = new THREE.Scene();
+            this.renderer = new THREE.WebGLRenderer( { antialias: false, alpha: true } );
+            this.renderer.setSize($('.modal-body').width() , $('.modal-body').height());
+            this.drawCoordinates();
+
+            function animate() {
+              that.animation = requestAnimationFrame(animate);
+              that.controls.update();
+              if (that.tcontrols)
+                that.tcontrols.update();
+              that.renderer.render(that.scene, that.camera);
+            };
+
+            this.render3d();
+            animate();
+          }
+        },
+
+        drawCoordinates: function() {
+          this.removeSceneObject("coordinates");
+          var that = this;
+
+          function createAxis(p1, p2, color){
+            var line, lineGeometry = new THREE.Geometry(),
+                lineMat = new THREE.LineBasicMaterial({color: color, linewidth: 1});
+            lineGeometry.vertices.push(p1, p2);
+            line = new THREE.Line(lineGeometry, lineMat);
+            line.name = "coordinates";
+            that.scene.add(line);
+          }
+
+          createAxis(new THREE.Vector3(0, 0, 0), new THREE.Vector3(110, 0, 0), 0xda4453);
+          createAxis(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 75, 0), 0x8cc152);
+          createAxis(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 160), 0x4a89dc);
+        },
+
+        removeSceneObject: function(ot) {
+          var len = this.scene.children.length;
+
+          while(len--) {
+            if (this.scene.children[len].name == ot)
+              this.scene.remove(this.scene.children[len]);
+          }
+        },
+
+        render3d: function(e,b) {
+          this.renderer.render(this.scene, this.camera);
+        },
+
+
+        drawEnvelope: function() {
+
+          this.removeSceneObject("envelope");
+          var en = new THREE.Mesh(new THREE.BoxGeometry(220, 150, 160), new THREE.MeshBasicMaterial({
+            visible: false
+          }));
+
+          en.name = 'envelope';
+          en.position.z = 80;
+
+          var eh = new THREE.EdgesHelper(en, 0x359BDD);
+          eh.material.linewidth = 1;
+          eh.name = "envelope";
+
+          this.scene.add(eh);
+          this.scene.add(en);
+        },
+
+        loadObject: function()
         {
-            this.$el.html(this.template({
-              'model': this.model,
-              'edit': this.edit
-            }));
+          var that = this;
+          var loader = new THREE.STLLoader();
 
+          var model_path = app.filesUrl + this.model.get('file_path');
 
-            return this.el;
+          if (!model_path)
+            return;
+
+          loader.load(model_path+"?c="+Math.random(), function ( geometry ) {
+              var material = new THREE.MeshNormalMaterial( {
+                 overdraw: 0.5,
+                 side: THREE.DoubleSide
+              } );
+
+              that.mesh = new THREE.Mesh( geometry, material );
+              that.mesh.name = 'model';
+              that.centerObject();
+              that.$el.find('.loader').hide();
+              that.mesh.receiveShadow = true;
+              that.scene.add( that.mesh );
+              that.positionCamera();
+
+              that.origialRotation = that.mesh.rotation.clone();
+              that.centerObject();
+          })
+        },
+
+        positionCamera: function() {
+          var bbox = new THREE.Box3().setFromObject(this.mesh)
+            , bs = bbox.size()
+            , bc = bbox.center()
+
+          this.camera.position.x = bc.x + (bs.x*0.8);
+          this.camera.position.y = bc.y - (bs.y*1.3);
+          this.camera.position.z = bc.z + (bs.z*1.3);
+        },
+
+        centerObject: function() {
+          var bbox = new THREE.Box3().setFromObject(this.mesh)
+            , bs = bbox.size()
+            , bc = bbox.center()
+            , cp = this.mesh.position;
+
+          this.mesh.position.set(cp.x-bc.x,cp.y-bc.y,cp.z-bc.z+(bs.z/2))
+        },
+
+        saveTransformations: function() {
+          this.showLoader('Saving...');
+          app.channel.trigger('project.clear-thumb', this.model);
+
+          var r = this.mesh.rotation
+            , s = this.mesh.scale
+            , that = this;
+
+          $.ajax({
+            url: app.hostUrl + '/api/project/modify/'+this.model.get('id'),
+            cache: false,
+            data: {
+                rotation: {x: r.x, y: r.y, z: r.z},
+                scale: {x: s.x, y: s.y, z: s.z},
+                user: sessionModel.getId()
+            },
+
+            type: 'POST',
+            headers: {
+              'authorization': 'Bearer '+sessionModel.get('jwt')
+            },
+            success: function(r){
+              app.alert('info', 'File saved');
+              // remove preview thumb until new one is rendered
+              that.model.set({'thumbnail': null, 'preview': null, 'rawimage': null, 'rendered': false});
+              that.model.save();
+              that.$el.find('.loader').hide();
+              that.show('div.read');
+
+              that.$el.find('.preview img').attr('src', '/images/loading.gif')
+              app.alert("info", "Rendering new preview image")
+              //debugger;
+            },
+            error: function(r){
+              app.alert('error', 'Unable to save the file. Please try again.')
+            }
+          });
+
+        },
+
+        showLoader: function(m) {
+          if (!m) m = 'Loading...';
+          this.$el.find('.loader div').html(m);
+          this.$el.find('.loader').show();
+        },
+
+        render: function() {
+          this.$el.html(this.template({
+            'model': this.model,
+            'edit': this.edit
+          }));
+
+          return this.el;
         }
     });
 

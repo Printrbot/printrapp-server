@@ -474,10 +474,6 @@ module.exports = function(app) {
       var thing = (req.body);
 
       // create project,
-
-      // run lambda thing importer
-
-      // runLambda(project, thing)
       if (!thing.name)
         return res.sendStatus(400);
 
@@ -493,11 +489,51 @@ module.exports = function(app) {
       return ProjectModel.create(data);
     })
     .then(function(project) {
+
+
+
+      // run lambda thing importer
+
+
+      // runLambda(project, thing)
+
+
+
       res.json(project);
     })
     .catch(function(err) {
       // error
       console.info(err);
+      res.sendStatus(400);
+    });
+  });
+
+
+  app.post('/api/project/modify/:id', function(req, res) {
+    checkAuth.verifyHeader(req.headers)
+    .then(function(udata) {
+      return ProjectModel.getProjectItemByIdAndUser(req.params.id, udata.id);
+    })
+    .then(function(item) {
+
+      var data = {
+        "file_path": item.file_path,
+        "user": item.user,
+        "rotate": req.body.rotation,
+        "scale": req.body.scale,
+        "id": req.params.id
+      }
+      console.info(data)
+      return MeshTools.applyTransformations(data)
+      .then(function(r) {
+        return MessageQueue.sendRenderMessage(item)
+      })
+    })
+    .then(function(t) {
+      res.json(t);
+    })
+    .catch(function(err) {
+      console.error(err);
       res.sendStatus(400);
     });
   });
@@ -660,14 +696,6 @@ module.exports = function(app) {
         }
       });
     });
-
-
-
-
-
-
-
-
   }
 
 

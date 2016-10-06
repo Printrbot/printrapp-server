@@ -32,7 +32,7 @@ function(
         },
         'click button.send-to-printer': 'sendToPrinter',
         'change input.project-photo-upload': 'uploadProjectPhoto',
-        'change input.project-item-upload': 'uploadProjectItem'
+        'change input.project-item-upload': 'uploadProjectItems'
       },
 
       initialize: function(o) {
@@ -40,14 +40,17 @@ function(
         var that = this;
 
         this.projectModel = new ProjectModel({id:app.selectedProject});
+
         this.listenTo(this.projectModel, 'change:_id', function(e){
           this.render();
         }, this);
+
         this.listenTo(this.projectModel, 'change:preview', function(e){
           this.render();
         }, this);
 
         this.tpl = _.template(Tpl);
+
         this.projectModel.fetch({
           headers: {'Authorization' :'Bearer '+sessionModel.get('jwt')},
           error: function(model, xhr, options) {
@@ -81,6 +84,9 @@ function(
           });
 
         }, this);
+
+        this.pendingUpload = [];
+        this.pendingItems = [];
       },
 
       editModal: function()
@@ -144,11 +150,88 @@ function(
         //var url = location.origin + "/12345678";
 
         // TODO update to dynamic printr name, not hardcoded
-        $.get('http://printrbot.local/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
-        console.info('http://printrbot.local/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
+        $.get('http://simple.local/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
+        console.info('http://simple.local/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
         app.alert('info', 'Project Sent to printer.');
       },
 
+      uploadNextPendingFile: function()
+      {
+          if (this.pendingUpload.length == 0)
+          return;
+          var that = this;
+
+          var data = new FormData();
+            data.append('file', this.pendingUpload.shift());
+
+          $.ajax({
+            url: '/api/project/'+this.projectModel.get('id')+'/uploaditem',
+            cache: false,
+            data: data,
+            contentType: false,
+            processData: false,
+            type: 'POST',
+            headers: {
+              'authorization': 'Bearer '+sessionModel.get('jwt')
+            },
+            success: function(r){
+              app.channel.trigger('item.uploaded', r);
+              app.alert('info', 'Project item uploaded. Rendering preview image...');
+              that.uploadNextPendingFile();
+            },
+            error: function(r){
+              //channel.trigger('file-upload-error', r);
+              console.info(r);
+              that.uploadNextPendingFile();
+              /*
+              app.channel.trigger('item.upload-error', m);
+              var _items = _.filter(items, function(i) {
+                return (i.get('name') != m.get('name'))
+              }, m);
+
+              that.projectModel.set('items', _items);
+              that.render();
+              // remove this temp item from list of items
+              */
+
+            }
+          });
+      },
+
+      uploadProjectItems: function(e)
+      {
+          var that = this;
+          var files = (e.currentTarget.files && e.currentTarget.files[0]) ? e.currentTarget.files : e.originalEvent.dataTransfer.files;
+          var output = [];
+          var fa = files.length > 0 ? files : [files];
+          var invalid = [];
+          var items = that.projectModel.get('items');
+
+          _.each(fa, function(f) {
+              var ext = f.name.split(".").pop().toLowerCase();
+              if (ext == 'stl') {
+                  var m = new ProjectItemModel({'name': f.name, 'size': f.size});
+                  m.index = items.length;
+                  items.push(m)
+                  that.pendingItems.push(m);
+                  that.pendingUpload.push(f);
+              } else {
+                  invalid.push(f.name);
+              }
+          })
+          that.projectModel.set('items', items)
+
+          if (that.pendingUpload.length > 0) {
+              that.render();
+              that.uploadNextPendingFile();
+          }
+
+          if (invalid.length > 0) {
+              // TODO: error notification
+          }
+
+      },
+/*
       uploadProjectItem: function(e)
       {
         var that = this;
@@ -198,6 +281,8 @@ function(
           return app.alert('error', 'Invalid file type. Only STL and image files are supported.')
         }
       },
+
+*/
 
       render: function() {
 

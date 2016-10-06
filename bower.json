@@ -23,6 +23,7 @@
     "requirejs": "*",
     "bootstrap": "^3.3.6",
     "moment": "^2.14.1",
-    "bootbox.js": "bootbox#^4.4.0"
+    "bootbox.js": "bootbox#^4.4.0",
+    "backbone.modelBinder": "Backbone.ModelBinder#^1.1.0"
   }
 }

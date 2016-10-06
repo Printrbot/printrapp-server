@@ -6,20 +6,18 @@
         <h4 class="modal-title"><%- model.get('name') %></h4>
       </div>
       <div class="modal-body">
-
-          <div class="read panel-body">
-            <div class="item-actions">
-              <!--<button class="btn btn-default" disabled><i class="fa fa-print"></i> Print</button>
-              <button class="btn btn-default"><i class="fa fa-cube"></i> 3d View</button>-->
-              <button class="btn btn-default print-settings"><i class="fa fa-edit"></i> Print Settings</button>
-              <button class="btn btn-default edit"><i class="fa fa-cog"></i> Change Name</button>
-
-            </div>
-
-            <div class="">
-              <div class="preview" syle="position:relative"><img src="<%- model.get('preview') %>"/> <div style="position: absolute;bottom:0;"><%- model.get('idx') %></div></div>
+        <div class="">
+          <div class="preview" syle="position:relative"><img src="<%- model.get('preview') %>"/>
+            <button class="show-three-dee"><i class="fa fa-cube"></i></button>
+            <div class="psinfo">
+              <ul>
+                <li><b>Resolution:</b> <span class="resolution"><%- model.get('resolution') %></span></li>
+                <li><b>Infill:</b> <span class="infill"><%- model.get('infill') %></span></li>
+                <li><b>Support:</b> <span class="support"><%- model.get('support') ? 'Yes' : 'No'%></span></li>
+              </ul>
             </div>
           </div>
+        </div>
 
           <div class="edit hidden panel-body">
             <div class="form-group">
@@ -37,8 +35,24 @@
           -->
           </div>
 
+        <div class="three-dee overlay hidden">
+            <div class="threed-view">
+                <div class="loader"><div>Loading....</div></div>
+                <div class="form-group object-modifiers">
+                  <div class="modify-pan">
+                    <div class="modify-pan-body">
+                      <div>
+                        <button class="btn pbtn hflip" data-toggle="tooltip" data-placement="bottom" title="Rotate on Z"><img src="/images/rotate1.svg" style="width:30px;height:30px"/></button>
+                        <button class="btn pbtn vflip" data-toggle="tooltip" data-placement="bottom" title="Rotate on X"><img src="/images/rotate2.svg" style="width:30px;height:30px"/></button>
+                        <button class="btn pbtn rflip" data-toggle="tooltip" data-placement="bottom" title="Reset">X</button>
+                      </div>
+                    </div>
+                  </div>
 
-        <div class="panel-body print-settings hidden">
+                </div>
+            </div>
+        </div>
+        <div class="panel-body print-settings overlay hidden">
           <h4>Print Settings</h4>
           <div class="form-group">
             <div>
@@ -90,9 +104,15 @@
             <button type="button" class="btn btn-default save"><i class="fa fa-check"></i> Save</button>
           </div>
 
+          <div class="three-dee hidden">
+            <button type="button" class="btn btn-default cancel-three-dee"><i class="fa fa-close"></i> Cancel</button>
+            <button type="button" class="btn btn-default save-three-dee"><i class="fa fa-check"></i> Save</button>
+          </div>
+
           <div class="read">
             <button type="button" class="btn btn-danger delete pull-left"><i class="fa fa-trash"></i> Delete</button>
             <button type="button" class="btn btn-default getgcode pull-left"><i class="fa fa-download"></i></button>
+
             <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
           </div>
 

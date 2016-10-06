@@ -24,8 +24,6 @@ function(
       this.project = o.project;
       this.forcereload = false;
 
-      console.info(this.model)
-
       this.listenTo(app.channel, 'render.completed', function(e) {
         if (!this.model.get('_id')) {
           if (this.model.get('name').toLowerCase() == e.data.name.toLowerCase()) {

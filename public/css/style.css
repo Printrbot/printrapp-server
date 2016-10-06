@@ -107,8 +107,9 @@ button.login-btn {
 }
 
 .modal-header {
-    background-color: #222;
-    color: white;
+  background-color: #3e3e3e;
+  color: white;
+  border-bottom: none;
 }
 
 .modal-content {
@@ -137,7 +138,7 @@ button.login-btn {
   position: relative;
   padding: 8px 12px;
   border: 0;
-  margin: 10px 1px;
+  margin: 0 2px 0px 0;
   cursor: pointer;
   border-radius: 2px;
   text-transform: uppercase;
@@ -392,6 +393,30 @@ div.create-project label {
   position: relative;
 }
 
+button.show-three-dee {
+  position: absolute;
+  top: 0;
+  font-size: 3em;
+  background-color: transparent;
+  color: #555;
+  right: 0;
+  border: none;
+  padding: 10px;
+}
+
+div.three-dee {
+  padding: 0 !important;
+}
+
+div.overlay {
+  position: absolute;
+  top: 0;
+  background-color: rgba(255,255,255,0.8);
+  width: 100%;
+  height: 100%;
+  padding: 20px 35px;
+}
+
 .preview img {
   width: 100%;
 }
@@ -604,7 +629,7 @@ div.model-container {
 }
 
 .threed-view {
-  min-height: 500px;
+
   height: 100%;
 }
 
@@ -637,13 +662,18 @@ button.save-object-btn {
 .print-settings-panel {
 
 }
+
+div.panel-body.print-settings {
+
+}
+
 .print-settings .form-group label {
     text-align: right;
     margin-bottom: 0;
 }
 
-.print-settings .form-group {
-
+.print-settings h4  {
+  margin-bottom: 20px;
 }
 
 .object-modifiers {
@@ -659,6 +689,7 @@ button.save-object-btn {
 
 .threed-view {
   position: relative;
+  background-color:white;
 }
 
 .threed-view .loader {
@@ -1180,4 +1211,27 @@ button.disconnect {
   bottom: 5px;
   left: 5px;
   display: block;
+}
+
+
+.psinfo {
+  position: absolute;
+  padding: 10px;
+  color: #555;
+  bottom:0;
+}
+
+.psinfo ul {
+  padding: 0;
+  margin: 0;
+}
+
+.psinfo ul:hover {
+  cursor: pointer;
+  color: black;
+}
+
+.psinfo ul li {
+  list-style: none;
+  text-transform: capitalize;
 }

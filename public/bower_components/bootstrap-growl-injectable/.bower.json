@@ -1,0 +1,18 @@
+{
+  "name": "bootstrap-growl",
+  "homepage": "https://github.com/ifightcrime/bootstrap-growl",
+  "main": [
+    "jquery.bootstrap-growl.js"
+  ],
+  "version": "1.1.0",
+  "_release": "1.1.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.1.0",
+    "commit": "21e4dde28f71603c255a9c1dc9dbd268766e6e46"
+  },
+  "_source": "git://github.com/pretzelwagon/bootstrap-growl.git",
+  "_target": "~1.1.0",
+  "_originalSource": "bootstrap-growl-injectable",
+  "_direct": true
+}

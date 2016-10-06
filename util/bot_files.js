@@ -47,7 +47,7 @@ module.exports.slice = function(item) {
       region: ac.region
     });
 
-    console.info("RESLICING:", item);
+    console.info("RESLICING:".red);
 
     lambda.invoke({
       FunctionName: 'slice-dev-testcura',
@@ -58,7 +58,7 @@ module.exports.slice = function(item) {
         reject(err);
       }
       else {
-        console.info("Done with slicer lambda");
+        console.info("SLICING COMPLETED".green);
         var output = JSON.parse(data.Payload);
         if (output && output.hasOwnProperty("errorMessage")) {
           console.log("ERROR:");

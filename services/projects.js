@@ -523,13 +523,21 @@ module.exports = function(app) {
         "scale": req.body.scale,
         "id": req.params.id
       }
-      console.info(data)
       return MeshTools.applyTransformations(data)
       .then(function(r) {
+        console.info("TRANSFORMATIOS DONE, SLICING...".blue)
+        // slice it, don't have to wait
+        BotFiles.slice(item)
+        .then(function(e) {
+          console.info("SLICING FINISHED".green);
+        })
+        // render preview
+        console.info("RENDERING PREVIEW...".pink);
         return MessageQueue.sendRenderMessage(item)
       })
     })
     .then(function(t) {
+      console.info("ALL DONE".red);
       res.json(t);
     })
     .catch(function(err) {

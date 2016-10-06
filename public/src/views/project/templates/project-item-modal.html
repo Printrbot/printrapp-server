@@ -7,7 +7,13 @@
       </div>
       <div class="modal-body">
         <div class="">
-          <div class="preview" syle="position:relative"><img src="<%- model.get('preview') %>"/>
+          <div class="preview" syle="position:relative">
+            <% if (model.get('preview')) { %>
+              <img src="<%- model.get('preview') %>"/>
+            <% } else { %>
+              <img src="/images/loading.gif">
+            <% } %>
+
             <button class="show-three-dee"><i class="fa fa-cube"></i></button>
             <div class="psinfo">
               <ul>
@@ -42,9 +48,10 @@
                   <div class="modify-pan">
                     <div class="modify-pan-body">
                       <div>
-                        <button class="btn pbtn hflip" data-toggle="tooltip" data-placement="bottom" title="Rotate on Z"><img src="/images/rotate1.svg" style="width:30px;height:30px"/></button>
-                        <button class="btn pbtn vflip" data-toggle="tooltip" data-placement="bottom" title="Rotate on X"><img src="/images/rotate2.svg" style="width:30px;height:30px"/></button>
-                        <button class="btn pbtn rflip" data-toggle="tooltip" data-placement="bottom" title="Reset">X</button>
+                        <button class="btn pbtn xflip" data-toggle="tooltip" data-placement="bottom" title="Rotate on X"><img src="/images/rotatex.svg" style="width:30px;height:30px"/></button>
+                        <button class="btn pbtn yflip" data-toggle="tooltip" data-placement="bottom" title="Rotate on Y"><img src="/images/rotatey.svg" style="width:30px;height:30px"/></button>
+                        <button class="btn pbtn zflip" data-toggle="tooltip" data-placement="bottom" title="Rotate on Z"><img src="/images/rotatez.svg" style="width:30px;height:30px"/></button>
+                        <button class="btn pbtn rflip" data-toggle="tooltip" data-placement="bottom" title="Reset"><img src="/images/rotatereset.svg" style="width:30px;height:30px"/></button>
                       </div>
                     </div>
                   </div>

@@ -20,7 +20,9 @@ var express = require('express')
   , _ = require('underscore')
   , temp = '/tmp/'
   , pendingJobs = []
-  , hat = require('hat');
+  , hat = require('hat')
+  , ProjectModel = require('./models/project_model')
+  , BotFiles = require('./util/bot_files');
 
 io.attach(server);
 app.io = io;
@@ -73,9 +75,20 @@ if ('development' == app.get('env')) {
 // relay internal channel messages to connected browser through socket.io
 
 channel.on('render.completed', function(e) {
-  console.info('RENDER COMPLETED, SENDING MSG ON SOCKETIO'.red);
-  console.info(e);
-    io.to(e.user).emit('message', { "message": "render.completed", "data":e });
+  // reindex project since there is a new image...
+  ProjectModel.getProjectWithItems(e.project)
+  .then(function(projectWithItems) {
+    console.info("RENDER COMPLETED, REINDEX...".red);
+    BotFiles.reindex(projectWithItems)
+    .then(function(e) {
+      console.info("PROJECT REINDEXED".green);
+    })
+  })
+  .catch(function(e) {
+    console.info("OH SHIT, SOMETHING WENT WRONG...".red);
+    console.info(e);
+  })
+  io.to(e.user).emit('message', { "message": "render.completed", "data":e });
 });
 
 channel.on('printer.connected', function(e) {
@@ -121,7 +134,7 @@ io.use(function(socket, next) {
 io.sockets.on('connection', function (socket)
 {
     // auto join socket to user room when connected
-    
+
     // if user is logged in join its broadcast room
     socket.join(socket.handshake.id);
     console.info('joining room '.green, socket.handshake.id.red);

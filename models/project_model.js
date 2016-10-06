@@ -2,7 +2,8 @@ var db = require('../config/database')
   , sha1 = require('sha1')
   , awsc = require('../config/aws')
   , _ = require('underscore')
-  , Promise = require('bluebird');
+  , Promise = require('bluebird')
+  , colors = require('colors');
 
 
 
@@ -37,6 +38,24 @@ module.exports.getProjectItemByIdAndUser = function(project_id, user_id)
       else if (item.user != user_id)
         reject(new Error('Invalid user id'));
       else resolve(item);
+    });
+  });
+}
+
+module.exports.getProjectWithItems = function(project_id)
+{
+  var that = this;
+  return new Promise(function(resolve, reject) {
+    db.get(project_id, {}, function(err, project) {
+      if (err) reject(err);
+      return that.getProjectItems(project._id)
+      .then(function(items) {
+        project.items = items;
+        resolve(project);
+      })
+      .catch(function(err) {
+        reject(err);
+      })
     });
   });
 }
@@ -108,11 +127,8 @@ module.exports.getItem = function(item_id)
 {
   return new Promise(function(resolve, reject) {
     db.get(item_id, {}, function(err, item) {
-      console.info(err);
-      console.info(item)
       if (err) reject(err);
       else {
-        console.info(item)
         if (item.type == 'project_item')
           resolve(item);
         else {
@@ -130,7 +146,6 @@ module.exports.createItem = function(data)
     data.created_at = new Date().getTime();
     data._id = data.id;
     db.insert(data, [], function(err, item) {
-      console.info("INSERTED ", item);
       if (err) reject(err);
       else resolve(item);
     });

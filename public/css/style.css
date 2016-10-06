@@ -1041,7 +1041,7 @@ button.disconnect {
     padding: 0;
     overflow-x: hidden;
     overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
-    background-color: #c1c1c1;
+    background-color: #616161;
     font-size: 1.6em;
   }
 

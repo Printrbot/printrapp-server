@@ -51,13 +51,26 @@ function(
           'click button.delete': 'delete',
           'click button.save': 'save',
           'click button.show-three-dee': 'show3dView',
-          'click button.hflip': function() {
-            this.mesh.rotateZ(-Math.PI / 4);
+          'click button.cancel-three-dee': function() {
+            this.mesh.rotation.z = 0;
+            this.mesh.rotation.x = 0;
+            this.mesh.rotation.y = 0;
+            this.centerObject();
+            this.show('div.read');
+          },
+          'click button.zflip': function() {
+            this.mesh.rotation.z += Math.PI / 4;
             this.centerObject();
           },
-          'click button.vflip': function() {
-            this.mesh.rotateX(Math.PI / 4);
+          'click button.xflip': function() {
+            this.mesh.rotation.x += Math.PI / 4;
             this.centerObject();
+            console.info(this.mesh.rotation);
+          },
+          'click button.yflip': function() {
+            this.mesh.rotation.y += Math.PI / 4;
+            this.centerObject();
+            console.info(this.mesh.rotation);
           },
           'click button.rflip': function() {
             this.mesh.rotation.z = 0;
@@ -86,6 +99,7 @@ function(
           this.model = pim;
           this.edit = false;
           this.template = _.template(Tpl);
+          this.stlLoaded = false;
 
           this.listenTo(this.model, 'change', function(e){
             if (e.changed.support)
@@ -171,7 +185,8 @@ function(
           this.setupScene();
 
           this.drawEnvelope();
-          this.loadObject();
+          if (!this.stlLoaded)
+            this.loadObject();
           if (this.renderer) {
             this.$el.find('.threed-view').prepend(this.renderer.domElement);
           }
@@ -308,6 +323,7 @@ function(
               that.mesh.receiveShadow = true;
               that.scene.add( that.mesh );
               that.positionCamera();
+              that.stlLoaded = true;
 
               that.origialRotation = that.mesh.rotation.clone();
               that.centerObject();

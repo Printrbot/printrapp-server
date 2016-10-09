@@ -48,7 +48,7 @@ function(
     initialize: function()
     {
       this.listenTo(sessionModel, 'change:authenticated', this.render)
-      //printers.scan(sessionModel.get('printers'));
+      printers.scan();
     },
 
     events: {

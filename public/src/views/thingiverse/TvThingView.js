@@ -59,6 +59,15 @@ function(
       var b = $(e.currentTarget);
       b.html('<img src="/images/ajax-loader.gif"/> Importing...');
 
+      var thingData = this.thingModel.attributes;
+      var thingFiles = [];
+
+      _.each(tvThingFiles.models, function(m) {
+        thingFiles.push(m.attributes);
+      }, this);
+
+      debugger
+      return;
       $.ajax({
         url: app.hostUrl + '/api/project/importthing',
         cache: false,

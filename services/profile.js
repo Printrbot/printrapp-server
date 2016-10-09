@@ -21,7 +21,7 @@ module.exports = function(app)
         var u = {};
         u.first_name = user.first_name;
         u.last_name = user.last_name;
-        u.printers = [];
+        u.printers = user.printers;
         u.email = user.email;
         u.thingiverse_token = user.thingiverse_token;
         u.thingiverse = user.thingiverse;
@@ -35,36 +35,26 @@ module.exports = function(app)
 
     app.put('/api/profile/:id', function(req, res)
     {
-
-      /*
-      var udata = checkAuth.verifyHeader(req.headers);
-      console.info("UDATA", udata);
-      if (!udata) {
-          return res.sendStatus(401);
-      }
-      // make sure that user is not setting one id in auth token
-      // and trying to update another user id!!!!
-
-      if (udata.id != req.params.id)
-        return res.sendStatus(401);
-
-      // ...
-
-      var data = req.body
-
-      if (req.params.id) {
-          db.get(req.params.id, {}, function(err, body) {
-              if (err)
-                  res.sendStatus(404);
-              else {
-                  // figure this out TODO
-
-                  res.json(body);
-              }
-          });
-      }
-
-      */
+      checkAuth.verifyHeader(req.headers)
+      .then(function(udata) {
+        return UserModel.getUser(udata.id)
+      })
+      .then(function(user) {
+        // filter here attributes that are updateable
+        if (req.body.printers) {
+          user.printers = req.body.printers;
+          return UserModel.update(user);
+        } else {
+          throw new Error("Required Parameters missing");
+        }
+      })
+      .then(function(user) {
+        res.json(user);
+      })
+      .catch(function(e) {
+        console.info(e);
+        return res.sendStatus(400);
+      })
     });
 
 

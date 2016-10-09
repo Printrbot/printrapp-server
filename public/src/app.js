@@ -66,6 +66,8 @@ function(
 		Backbone.sync(method, model, options);
 	};
 
+	profileModel.sync = app.sync;
+
 	app.syncTv = function (method, model, options)
 	{
     if (sessionModel.get('authenticated') && profileModel.get('thingiverse_token'))

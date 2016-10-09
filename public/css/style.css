@@ -716,6 +716,22 @@ div.panel-body.print-settings {
   /* font-family: 'BebasNeueRegular', sans-serif; */
 }
 
+.alert-default {
+  background-color: #E7AF00;
+  color: white;
+}
+.alert a {
+  color: white;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.alert button {
+  font-size: 12px;
+  background-color: rgba(255, 255, 255, 0.5);
+
+}
+
 .alert-dismissable {
   /*box-shadow: 0 0 10px #ccc;*/
 }
@@ -1199,20 +1215,18 @@ button.disconnect {
   position: sticky;
 }
 
-.change-picture {
-  position: absolute;
-  bottom: 5px;
-  left: 5px;
-  display: none;
+
+.project-actionpanel button {
+  margin: 3px 0;
+  width: 100%;
+  text-align: left;
+  background-color: #ccc;
+  color: #444;
 }
 
-.preview:hover .change-picture {
-  position: absolute;
-  bottom: 5px;
-  left: 5px;
-  display: block;
+.dropdown-menu {
+  border-radius: 0;
 }
-
 
 .psinfo {
   position: absolute;
@@ -1234,4 +1248,22 @@ button.disconnect {
 .psinfo ul li {
   list-style: none;
   text-transform: capitalize;
+}
+
+.pstat {
+  width: 12px;
+  height:12px;
+  background-image: -moz-radial-gradient(45px 45px 45deg, circle cover, #FAFAFA 0%, #BDBDBD 100%, red 95%);
+	background-image: -webkit-radial-gradient(45px 45px, circle cover, #FAFAFA, #BDBDBD);
+	background-image: radial-gradient(45px 45px 45deg, circle cover, #FAFAFA 0%, #BDBDBD 100%, red 95%);
+  float: left;
+  margin-top:2px;
+  margin-right: 5px;
+  margin-left: 0;
+}
+
+.pstat.online {
+  background-image: -moz-radial-gradient(45px 45px 45deg, circle cover, #CDDC39 0%, #8BC34A 100%, red 95%);
+	background-image: -webkit-radial-gradient(45px 45px, circle cover, #CDDC39, #8BC34A);
+	background-image: radial-gradient(45px 45px 45deg, circle cover, #CDDC39 0%, #8BC34A 100%, red 95%);
 }

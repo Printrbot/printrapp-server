@@ -3,8 +3,11 @@ define([
   'models/project',
   'models/session',
   'models/project_item',
+  'models/profile',
   'views/project/ProjectItemThumbView',
+  'views/project/PrintrbarView',
   'views/project/EditProjectModal',
+  'views/project/PrinterModal',
   'text!./templates/project.html'
 ],
 
@@ -13,8 +16,11 @@ function(
    ProjectModel,
    sessionModel,
    ProjectItemModel,
+   profileModel,
    ProjectItemThumbView,
+   PrintrbarView,
    EditProjectModal,
+   PrinterModal,
    Tpl
 ){
 
@@ -32,7 +38,9 @@ function(
         },
         'click button.send-to-printer': 'sendToPrinter',
         'change input.project-photo-upload': 'uploadProjectPhoto',
-        'change input.project-item-upload': 'uploadProjectItems'
+        'change input.project-item-upload': 'uploadProjectItems',
+        'click .add-printer': 'addPrinter',
+        'click .select-printer': 'selectPrinter'
       },
 
       initialize: function(o) {
@@ -144,15 +152,44 @@ function(
         }
       },
 
+      addPrinter: function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var pm = new PrinterModal();
+        var that = this;
+        pm.open(function(o)
+        {
+          if (o)
+            app.alert('info', 'Printer Added');
+          else {
+            app.alert('error', "Unable to add printer");
+          }
+          that.render();
+        });
+      },
+
+      selectPrinter: function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var sp = $(e.currentTarget).text();
+        profileModel.selectPrinter(sp);
+      },
+
       sendToPrinter: function(e)
       {
-        var url = "http://files.printrapp.com/u/"+this.projectModel.get('user')+'/p/'+this.projectModel.get('_id')+'/'+this.projectModel.get('idx');
-        //var url = location.origin + "/12345678";
+        var sp = profileModel.getSelectedPrinter();
+        if (sp.status == 'online') {
+          var url = "http://files.printrapp.com/u/"+this.projectModel.get('user')+'/p/'+this.projectModel.get('_id')+'/'+this.projectModel.get('idx');
+          //var url = location.origin + "/12345678";
+          $.get('http://'+profileModel.getSelectedPrinter().ip+'/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
+          console.info('http://'+profileModel.getSelectedPrinter().ip+'/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
+          app.alert('info', 'Project Sent to printer.');
+        } else {
+          app.alert('error', 'Printer is not available.');
+        }
 
-        // TODO update to dynamic printr name, not hardcoded
-        $.get('http://simple.local/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
-        console.info('http://simple.local/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
-        app.alert('info', 'Project Sent to printer.');
       },
 
       uploadNextPendingFile: function()
@@ -231,62 +268,13 @@ function(
           }
 
       },
-/*
-      uploadProjectItem: function(e)
-      {
-        var that = this;
-        var file = (e.currentTarget.files && e.currentTarget.files[0]) ? e.currentTarget.files[0] : false;
-        if (!file)
-          return;
-
-        var ext = file.name.split(".").pop().toLowerCase();
-        if (_.contains(['jpg','jpeg','png','stl'], ext)) {
-          var data = new FormData();
-          data.append('file', file);
-          app.alert('info', 'Uploading, please wait...')
-          var items = that.projectModel.get('items');
-          var m = new ProjectItemModel({'name': file.name});
-          items.push(m)
-          that.projectModel.set('items', items)
-          that.render();
-
-        	$.ajax({
-    				url: '/api/project/'+this.projectModel.get('id')+'/uploaditem',
-    				cache: false,
-    				data: data,
-    				contentType: false,
-    				processData: false,
-    				type: 'POST',
-            headers: {
-              'authorization': 'Bearer '+sessionModel.get('jwt')
-            },
-    				success: function(r){
-              app.channel.trigger('item.uploaded', r);
-              app.alert('info', 'Project item uploaded. Rendering preview image...')
-    				},
-    				error: function(err){
-              app.channel.trigger('item.upload-error', m);
-              var _items = _.filter(items, function(i) {
-                return (i.get('name') != m.get('name'))
-              }, m);
-
-              that.projectModel.set('items', _items);
-              that.render();
-              // remove this temp item from list of items
-
-              app.alert('error', 'Unable to upload selected item.');
-    				}
-    			});
-        } else {
-          return app.alert('error', 'Invalid file type. Only STL and image files are supported.')
-        }
-      },
-
-*/
 
       render: function() {
 
-        this.$el.html(this.tpl({ project: this.projectModel }));
+        this.$el.html(this.tpl({ project: this.projectModel, profile: profileModel }));
+
+        var pbv = this.loadView(new PrintrbarView(), 'printrbarview');
+        this.$el.find('.header').prepend(pbv.render());
 
         this.$el.find('.preview img').on('error', function(i) {
           // just set unknown image

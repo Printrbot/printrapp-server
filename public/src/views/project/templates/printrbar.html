@@ -1,0 +1,38 @@
+<% if (profile.get('printers').length == 0) { %>
+<div class="alert alert-default">
+  You do not have printer configured. Sending files to printer will be disabled until you create a printer instance.
+  <div style="margin-top:10px">
+    <button class="btn add-printer"><i class="fa fa-plus"></i> Add Printer</button>
+  </div>
+</div>
+<% } else { %>
+
+  <div class="col-xs-6 col-sm-4 col-md-2 pull-right">
+  <div class="dropdown">
+    <button class="btn btn-default dropdown-toggle pull-right" type="button" data-toggle="dropdown" >
+      <div class="pstat <%- profile.getSelectedPrinter().status %>"></div><%- selectedPrinter.name %>
+      <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+      <li class="dropdown-header"><%- selectedPrinter.name %>
+        <div style="font-size: 0.9em;">Status: <%- profile.getPrinterStatus() %></div>
+      </li>
+      <li><a href="#" class="edit-printer">Edit</a></li>
+      <li role="separator" class="divider"></li>
+      <% if (profile.get('printers').length > 1) { %>
+        <li class="dropdown-header" >Select Printer</li>
+        <% _.each(profile.get('printers'), function(p) { %>
+          <% if (selectedPrinter.name != p.name) { %>
+            <li><a href="#" class="select-printer"><%- p.name %></a></li>
+          <% } %>
+        <% }) %>
+        <li role="separator" class="divider"></li>
+      <% } %>
+
+      <li><a href="#" class="add-printer">Add new printer</a></li>
+    </ul>
+  </div>
+
+  </div>
+
+<% } %>

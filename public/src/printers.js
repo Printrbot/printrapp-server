@@ -1,46 +1,40 @@
 define([
     'app',
-    'models/printer'
+    'models/profile'
 ],
 function(
     app,
-    PrinterModel
+    profileModel
 )
 {
   var m = {
 
     printers: [],
-    scanning: true,
 
     scan: function(names) {
       // look for printrbot.local,
       // and other names
-      this.scanning = true;
-      this.trigger("scan");
+      _.each(profileModel.get('printers'), function(p) {
+        this._getStatus(p);
+      }, this)
 
       console.info('in scan... [[[((((....))))]]]');
+    },
+
+    _getStatus: function(p) {
       var that = this;
       $.ajax({
-        url: 'http://printrbot.local/info',
+        url: 'http://'+p.ip+'/info',
         cache: false,
-        data: {
-
-        },
         type: 'GET',
-        /*
-        headers: {
-          'authorization': 'Bearer '+user.get('jwt')
-        },
-        */
         success: function(r){
-          var _p = new PrinterModel(r);
-          that.printers = _.union(that.printers, [_p]);
-          that.scanning = false;
-          that.trigger("add");
+          p.info = r;
+          p.status = 'online';
+          profileModel.trigger('change', profileModel);
         },
         error: function(r){
-          that.scanning = false;
-          that.trigger("sync");
+          p.status = 'unavailable';
+          profileModel.trigger('change', profileModel);
         }
       });
     }

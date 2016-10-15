@@ -1,5 +1,6 @@
 define([
   'app',
+  'printers',
   'models/project',
   'models/session',
   'models/project_item',
@@ -13,6 +14,7 @@ define([
 
 function(
    app,
+   printers,
    ProjectModel,
    sessionModel,
    ProjectItemModel,
@@ -40,7 +42,9 @@ function(
         'change input.project-photo-upload': 'uploadProjectPhoto',
         'change input.project-item-upload': 'uploadProjectItems',
         'click .add-printer': 'addPrinter',
-        'click .select-printer': 'selectPrinter'
+        'click .select-printer': 'selectPrinter',
+        'click .edit-printer': 'editPrinter',
+        'click .delete-printer': 'deletePrinter'
       },
 
       initialize: function(o) {
@@ -160,9 +164,10 @@ function(
         var that = this;
         pm.open(function(o)
         {
-          if (o)
+          if (o) {
             app.alert('info', 'Printer Added');
-          else {
+            printers.scan();
+          } else {
             app.alert('error', "Unable to add printer");
           }
           that.render();
@@ -175,6 +180,26 @@ function(
 
         var sp = $(e.currentTarget).text();
         profileModel.selectPrinter(sp);
+      },
+
+      editPrinter: function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var sp =  profileModel.getSelectedPrinter();
+
+        var pm = new PrinterModal(sp);
+        var that = this;
+        pm.open(function(o)
+        {
+          if (o) {
+            app.alert('info', 'Printer Updated');
+            printers.scan();
+          } else {
+            app.alert('error', "Unable to update printer");
+          }
+          that.render();
+        });
       },
 
       sendToPrinter: function(e)

@@ -60,19 +60,17 @@ function(
       this.printer.ip = $('input.ip').val();
 
       var ps = profileModel.get('printers');
-      ps = _.map(ps, function(_p) {
-        return  _.omit(_p, 'selected');
-      })
-      this.printer.selected = true;
 
       if (this.printer.id) {
-        // update
-        debugger
+
       } else {
+        ps = _.map(ps, function(_p) {
+          return  _.omit(_p, 'selected');
+        })
+        this.printer.selected = true;
         this.printer.id =  ps.length + 1;
         ps.push(this.printer);
       }
-
       profileModel.set('printers', ps);
 
       profileModel.save({}, {

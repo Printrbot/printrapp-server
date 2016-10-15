@@ -1251,19 +1251,36 @@ button.disconnect {
 }
 
 .pstat {
-  width: 12px;
-  height:12px;
   background-image: -moz-radial-gradient(45px 45px 45deg, circle cover, #FAFAFA 0%, #BDBDBD 100%, red 95%);
 	background-image: -webkit-radial-gradient(45px 45px, circle cover, #FAFAFA, #BDBDBD);
 	background-image: radial-gradient(45px 45px 45deg, circle cover, #FAFAFA 0%, #BDBDBD 100%, red 95%);
   float: left;
-  margin-top:2px;
   margin-right: 5px;
-  margin-left: 0;
+  margin-left: -3px;
+  height: 16px;
+  width: 16px;
+  border-radius: 4px;
 }
 
 .pstat.online {
   background-image: -moz-radial-gradient(45px 45px 45deg, circle cover, #CDDC39 0%, #8BC34A 100%, red 95%);
 	background-image: -webkit-radial-gradient(45px 45px, circle cover, #CDDC39, #8BC34A);
 	background-image: radial-gradient(45px 45px 45deg, circle cover, #CDDC39 0%, #8BC34A 100%, red 95%);
+}
+
+
+.printrbar li a {
+  clear:none;
+}
+
+.printrbar li .pstat {
+  margin-top:5px;
+  margin-left: 20px;
+  height: 16px;
+  width: 16px;
+  border-radius: 4px;
+}
+
+.dropdown-header .pstat {
+  margin-left: 0 !important;
 }

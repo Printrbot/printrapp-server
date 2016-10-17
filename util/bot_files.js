@@ -70,5 +70,32 @@ module.exports.slice = function(item) {
       }
     });
   })
+}
 
+module.exports.importThing = function(url, s3Path) {
+  return new Promise(function(resolve, reject) {
+    var lambda = new AWS.Lambda({
+      region: ac.region
+    });
+    console.info("IMPORTING:".red);
+    lambda.invoke({
+      FunctionName: 'importer-dev-importThingiverse',
+      Payload: JSON.stringify({url: url, key: s3Path})
+    }, function(err, data) {
+      if (err) {
+        console.log(err, err.stack);
+        reject(err);
+      }
+      else {
+        console.info("IMPORT COMPLETED".green);
+        var output = JSON.parse(data.Payload);
+        if (output && output.hasOwnProperty("errorMessage")) {
+          console.log("ERROR:");
+          console.log(output.errorMessage);
+          reject(output.errorMessage);
+        }
+        resolve(output);
+      }
+    });
+  })
 }

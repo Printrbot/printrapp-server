@@ -63,16 +63,17 @@ function(
       var thingFiles = [];
 
       _.each(tvThingFiles.models, function(m) {
-        thingFiles.push(m.attributes);
+        thingFiles.push(_.omit(m.attributes, ['default_image']));
       }, this);
 
-      debugger
-      return;
       $.ajax({
         url: app.hostUrl + '/api/project/importthing',
         cache: false,
         dataType: 'json',
-        data: this.thingModel.attributes,
+        data: {
+          project: thingData,
+          items: thingFiles
+        },
         //contentType: false,
         //processData: false,
         type: 'POST',
@@ -80,8 +81,10 @@ function(
           'authorization': 'Bearer '+sessionModel.get('jwt')
         },
         success: function(r) {
-          if (r.ok)
+          if (r.ok) {
             Backbone.history.navigate('project/'+r.id, true);
+            app.alert("info", "Importing, please wait...")
+          }
         },
         error: function(r){
           app.alert('error', 'Unable to import Thing. Please try again.')

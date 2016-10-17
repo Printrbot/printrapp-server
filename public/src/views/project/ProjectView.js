@@ -61,6 +61,10 @@ function(
           this.render();
         }, this);
 
+        this.listenTo(this.projectModel, 'change:items', function(e){
+          this.render();
+        }, this);
+
         this.tpl = _.template(Tpl);
 
         this.projectModel.fetch({
@@ -85,6 +89,20 @@ function(
             });
             this.projectModel.save();
           }
+
+          // if we do not find the item in project.items, reload project to make sure
+          // we have the latest items
+
+          var _m = _.find(this.projectModel.get('items'), function(m) {
+            return e.data.id == m.id;
+          })
+
+          if (!_m)
+            this.projectModel.fetch();
+
+
+
+
         }, this)
 
         this.listenTo(app.channel, 'project.item-removed', function(item) {
@@ -201,6 +219,15 @@ function(
           that.render();
         });
       },
+
+      deletePrinter: function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var sp =  profileModel.getSelectedPrinter();
+
+      },
+
 
       sendToPrinter: function(e)
       {

@@ -15,7 +15,6 @@ var db = require('../config/database')
   , MessageQueue = require('../util/message_queue')
   , MeshTools = require('../util/mesh_tools')
   , BotFiles = require('../util/bot_files')
-  , ImportTools = require('../util/import_tools')
 
 
 module.exports = function(app) {
@@ -110,17 +109,6 @@ module.exports = function(app) {
 
       return ProjectModel.create(data);
     })
-    /*
-    .then(function(project) {
-      // if we receive preview image url, run L
-      if (req.body.preview)
-        ImportTools.importProjectPreview(project, req.body.preview);
-
-        console.info(project)
-
-      return project;
-    })
-    */
     .then(function(project) {
       res.json(project);
     })
@@ -466,47 +454,7 @@ module.exports = function(app) {
   });
 
 
-  app.post('/api/project/importthing', function(req, res)
-  {
-    checkAuth.verifyHeader(req.headers)
-    .then(function(udata) {
-      // verify required params
-      var thing = (req.body);
 
-      // create project,
-      if (!thing.name)
-        return res.sendStatus(400);
-
-      // insert project
-      var data = {
-        "user": udata.id,
-        "name": thing.name,
-        "description": thing.description,
-        "idx": hat(32, 16),
-        "repo_src": thing.url,
-        "repo_name": "thingiverse"
-      };
-      return ProjectModel.create(data);
-    })
-    .then(function(project) {
-
-
-
-      // run lambda thing importer
-
-
-      // runLambda(project, thing)
-
-
-
-      res.json(project);
-    })
-    .catch(function(err) {
-      // error
-      console.info(err);
-      res.sendStatus(400);
-    });
-  });
 
 
   app.post('/api/project/modify/:id', function(req, res) {

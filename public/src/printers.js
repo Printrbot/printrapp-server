@@ -15,6 +15,7 @@ function(
       // look for printrbot.local,
       // and other names
       _.each(profileModel.get('printers'), function(p) {
+        p.status = 'unavailable';
         this._getStatus(p);
       }, this)
 

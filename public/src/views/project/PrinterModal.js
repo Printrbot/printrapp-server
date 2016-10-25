@@ -41,6 +41,13 @@ function(
       this.callback = callback;
     },
 
+    validateIp: function(ipaddress) {
+      if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress)) {
+        return true;
+      }
+      return false;
+    },
+
     save: function(e) {
       var that = this;
       e.stopPropagation();
@@ -55,6 +62,12 @@ function(
         $('input.ip').parent().addClass('has-error');
         valid = false;
       }
+
+      if (!this.validateIp($('input.ip').val())) {
+        $('input.ip').parent().addClass('has-error');
+        valid = false;
+      }
+
       if (!valid) return;
       this.printer.name = $('input.name').val();
       this.printer.ip = $('input.ip').val();

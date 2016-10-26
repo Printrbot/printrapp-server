@@ -11,12 +11,17 @@
             <% if (model.get('preview')) { %>
               <img src="<%- model.get('preview') %>"/>
             <% } else { %>
-              <img src="/images/rings.svg">
+              <img src="/images/loading.gif">
             <% } %>
 
             <button class="show-three-dee"><i class="fa fa-cube"></i></button>
             <div class="psinfo">
               <ul>
+              <% if (model.get('size')) { %>
+                <li class="sizex <%- (model.get('size')[0] > 220) ? 'danger' : '' %>" val="<%- model.get('size')[0] %>"><b>Size X:</b> <span><%- (model.get('size')[0]).toFixed(1) %>mm</span></li>
+                <li class="sizey <%- (model.get('size')[1] > 150) ? 'danger' : '' %>" val="<%- model.get('size')[1] %>"><b>Size Y:</b> <span><%- (model.get('size')[1]).toFixed(1) %>mm</span></li>
+                <li class="sizez <%- (model.get('size')[2] > 160) ? 'danger' : '' %>" val="<%- model.get('size')[2] %>"><b>Size Z:</b> <span><%- (model.get('size')[2]).toFixed(1) %>mm</span></li>
+              <% }; %>
                 <li><b>Resolution:</b> <span class="resolution"><%- model.get('resolution') %></span></li>
                 <li><b>Infill:</b> <span class="infill"><%- model.get('infill') %></span></li>
                 <li><b>Support:</b> <span class="support"><%- model.get('support') ? 'Yes' : 'No'%></span></li>

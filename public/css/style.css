@@ -481,6 +481,10 @@ div.project-block:hover .project-name {
   color: #2980b9;
 }
 
+div.project-footer .project-name.danger {
+  color: rgba(180,0,0,1);
+}
+
 div.create-project-footer {
   height: 50px;
   background-color: #F6F6F6;
@@ -1249,6 +1253,10 @@ button.disconnect {
 .psinfo ul li {
   list-style: none;
   text-transform: capitalize;
+}
+
+.psinfo ul li.danger {
+  color: rgba(180,0,0,1);
 }
 
 .pstat {

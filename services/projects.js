@@ -454,10 +454,6 @@ module.exports = function(app) {
     });
   });
 
-
-
-
-
   app.post('/api/project/modify/:id', function(req, res) {
     checkAuth.verifyHeader(req.headers)
     .then(function(udata) {
@@ -475,6 +471,14 @@ module.exports = function(app) {
       return MeshTools.applyTransformations(data)
       .then(function(r) {
         console.info("TRANSFORMATIOS DONE, SLICING...".blue)
+        console.info(r);
+        // when we apply transformations, x,y and z size change
+        // so update them
+        if (r.size) {
+          item.size = r.size;
+          ProjectModel.updateItem(item);
+        }
+
         // slice it, don't have to wait
         BotFiles.slice(item)
         .then(function(e) {

@@ -54,6 +54,7 @@ module.exports.applyTransformations = function(ldata) {
       }
       else {
         console.info("Done with transformation lambda");
+        console.info(data);
         var output = JSON.parse(data.Payload);
         if (output && output.hasOwnProperty("errorMessage")) {
           console.log("ERROR:");

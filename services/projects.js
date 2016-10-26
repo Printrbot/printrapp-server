@@ -476,7 +476,16 @@ module.exports = function(app) {
         // so update them
         if (r.size) {
           item.size = r.size;
-          ProjectModel.updateItem(item);
+          console.info("updating project item: ", item);
+          ProjectModel.updateItem(item)
+          .spread(function(_data, _item) {
+            console.info("Project item updated!".red);
+            console.info(_item);
+          })
+          .catch(function(err) {
+            console.info("could not update project item!".red);
+            console.info(err);
+          })
         }
 
         // slice it, don't have to wait

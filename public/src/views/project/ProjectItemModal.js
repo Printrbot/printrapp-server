@@ -374,7 +374,7 @@ function(
               app.alert('info', 'File saved');
               // remove preview thumb until new one is rendered
               that.model.set({'thumbnail': null, 'preview': null, 'rawimage': null, 'rendered': false});
-              that.model.save();
+              //that.model.save();
               that.$el.find('.loader').hide();
               that.show('div.read');
 

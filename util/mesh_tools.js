@@ -9,8 +9,7 @@ module.exports.fixStl = function(file_path)
   return new Promise(function(resolve, reject) {
     var cmd = 'admesh --write-binary-stl=./'+file_path+' ./'+file_path;
     exec(cmd, function callback(err, stdout, stderr) {
-      console.info(stdout);
-      console.info(stderr);
+
       if (err) {
         console.info("ERROR IN ADMESH", err)
         // allow it still to upload
@@ -18,7 +17,23 @@ module.exports.fixStl = function(file_path)
       else if (stderr) {
         console.info("stdERROR IN ADMESH", stderr)
       }
-      resolve(file_path);
+
+      // parse out object size
+      var out = stdout.split('============== Size ==============')[1];
+      out = out.split("===")[0];
+      var m = out.match(/\S+/g);
+
+      var minx = parseFloat(m[3])
+        , maxx = parseFloat(m[7])
+        , miny = parseFloat(m[11])
+        , maxy = parseFloat(m[15])
+        , minz = parseFloat(m[19])
+        , maxz = parseFloat(m[23])
+        , lx = maxx - minx
+        , ly = maxy - miny
+        , lz = maxz - minz
+
+      resolve([file_path, lx, ly, lz]);
     });
   })
 }

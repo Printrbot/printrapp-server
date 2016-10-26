@@ -357,7 +357,8 @@ module.exports = function(app) {
       console.info(pi);
       // fix the uploaded file with admesh
       return MeshTools.fixStl(f.path) // maybe move this to lambda?
-      .then(function(file_path) {
+      .spread(function(file_path, lx, ly, lz) {
+        pi.size = [lx, ly, lz];
         // upload stl to s3
         console.info("UPLOADING TO S3")
         var s3uploadpath = 'u/'+project.user+'/i/'+pi.id+'/';

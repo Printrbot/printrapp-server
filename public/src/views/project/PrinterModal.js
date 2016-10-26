@@ -14,7 +14,8 @@ function(
     events:
     {
       'click button.cancel': 'cancel',
-      'click button.save': 'save'
+      'click button.save': 'save',
+      'click button.delete': 'delete'
     },
 
     initialize: function(pm)
@@ -46,6 +47,20 @@ function(
         return true;
       }
       return false;
+    },
+
+    delete: function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+
+      var sp = profileModel.getSelectedPrinter();
+
+      var ps = _.filter(profileModel.get('printers'), function(p) {
+        return p.id != sp.id;
+      }, this)
+
+      profileModel.set('printers', ps);
+      profileModel.save();
     },
 
     save: function(e) {

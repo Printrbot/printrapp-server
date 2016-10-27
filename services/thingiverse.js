@@ -147,11 +147,11 @@ module.exports = function(app) {
           }
           var s3uploadpath = 'u/'+project.user+'/i/'+pi.id+'/'+pi.id+'.stl';
           return BotFiles.importThing(item.public_url, s3uploadpath)
-          .then(function(stl) {
-            console.info("UPDATING PROJECT WITH SRC ", stl);
+          .then(function(lambdaData) {
+            console.info("UPDATING PROJECT WITH SRC ", lambdaData);
             // update item with stl location
-            console.info(stl);
-            pi.file_path = stl.Key;
+            pi.file_path = lambdaData.s3.Key;
+            pi.size = lambdaData.size;
             return pi
           })
           .then(function(_pi) {

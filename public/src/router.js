@@ -29,6 +29,7 @@ function(
       'jobs':'showJobs',
       'project/:id':'showProject',
       'thingiverse': 'showThingiverse',
+      'materials': 'showMaterials',
       'thingiverse/:id': 'showThingiverse',
       'thingiverse/collection/:tvcid': 'showThingiverseCollection',
       'thingiverse/thing/:pid': 'showThingiverseThing',
@@ -59,6 +60,13 @@ function(
     showBrowser: function(e)
     {
       app.selectedView = 'browser';
+      app.protected = true;
+      this.topView.render();
+    },
+
+    showMaterials: function(e)
+    {
+      app.selectedView = 'materials';
       app.protected = true;
       this.topView.render();
     },

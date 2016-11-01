@@ -87,6 +87,16 @@ function(
       this.printer.name = $('input.name').val();
       this.printer.ip = $('input.ip').val();
 
+      if ($('input.password').val()) {
+        if (this.printer.password != $('input.password').val()) {
+          var passtoken = (this.printer.info && this.printer.info.name) ? this.printer.info.name : 'printrbot';
+          passtoken += ':' + $('input.password').val();
+          this.printer.password = btoa(passtoken);
+        }
+      } else {
+        this.printer.password = "";
+      }
+
       var ps = profileModel.get('printers');
 
       if (this.printer.id) {

@@ -15,7 +15,8 @@ define([
   'views/browser/SearchBarView',
   'views/thingiverse/ThingiverseView',
   'views/thingiverse/TvCollectionView',
-  'views/thingiverse/TvThingView'
+  'views/thingiverse/TvThingView',
+  'views/materials/MaterialsView'
 ],
 
 function(
@@ -35,7 +36,8 @@ function(
    SearchBarView,
    ThingiverseView,
    TvCollectionView,
-   TvThingView
+   TvThingView,
+   MaterialsView
 )
 {
 
@@ -94,6 +96,10 @@ function(
       }
       else if (app.selectedView == 'thingiverse') {
         var b = this.loadView(new ThingiverseView(), 'thingiverse');
+        e.append(b.render());
+      }
+      else if (app.selectedView == 'materials') {
+        var b = this.loadView(new MaterialsView(), 'materials');
         e.append(b.render());
       }
       else if (app.selectedView == 'thingiverse-collection') {

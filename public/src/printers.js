@@ -23,11 +23,19 @@ function(
     },
 
     _getStatus: function(p) {
+
       var that = this;
+      var _headers = {};
+
+      if (p.password.length > 0) {
+        _headers.Authorization ="Basic " + p.password;
+      }
+
       $.ajax({
         url: 'http://'+p.ip+'/info',
         cache: false,
         type: 'GET',
+        headers: _headers,
         success: function(r){
           p.info = r;
           p.status = 'online';

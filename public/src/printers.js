@@ -27,7 +27,7 @@ function(
       var that = this;
       var _headers = {};
 
-      if (p.password.length > 0) {
+      if (p.password && p.password.length > 0) {
         _headers.Authorization ="Basic " + p.password;
       }
 

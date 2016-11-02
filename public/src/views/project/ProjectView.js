@@ -235,9 +235,27 @@ function(
         if (sp.status == 'online') {
           var url = "http://files.printrapp.com/u/"+this.projectModel.get('user')+'/p/'+this.projectModel.get('_id')+'/'+this.projectModel.get('idx');
           //var url = location.origin + "/12345678";
-          $.get('http://'+profileModel.getSelectedPrinter().ip+'/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
-          console.info('http://'+profileModel.getSelectedPrinter().ip+'/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
-          app.alert('info', 'Project Sent to printer.');
+          var _headers = {};
+          if (p.password && p.password.length > 0) {
+            _headers.Authorization ="Basic " + p.password;
+          }
+          $.ajax({
+            url: 'http://'+profileModel.getSelectedPrinter().ip+'/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project',
+            cache: false,
+            type: 'GET',
+            headers: _headers,
+            success: function(r){
+              app.alert('info', 'Project Sent to printer.');
+            },
+            error: function(r){
+              app.alert('info', 'Sending project failed.');
+            }
+          });
+
+
+          //$.get('http://'+profileModel.getSelectedPrinter().ip+'/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
+          //console.info('http://'+profileModel.getSelectedPrinter().ip+'/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
+          //app.alert('info', 'Project Sent to printer.');
         } else {
           app.alert('error', 'Printer is not available.');
         }

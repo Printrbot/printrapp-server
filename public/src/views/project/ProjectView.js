@@ -236,8 +236,8 @@ function(
           var url = "http://files.printrapp.com/u/"+this.projectModel.get('user')+'/p/'+this.projectModel.get('_id')+'/'+this.projectModel.get('idx');
           //var url = location.origin + "/12345678";
           var _headers = {};
-          if (p.password && p.password.length > 0) {
-            _headers.Authorization ="Basic " + p.password;
+          if (sp.password && sp.password.length > 0) {
+            _headers.Authorization ="Basic " + sp.password;
           }
           $.ajax({
             url: 'http://'+profileModel.getSelectedPrinter().ip+'/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project',

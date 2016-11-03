@@ -174,6 +174,12 @@ button.login-btn {
   color: white;
   border:none;
 }
+.btn-default.disabled {
+  background-color: #3e3e3e;
+  color: white;
+  border-radius: 0;
+  line-height: 1.5em;
+}
 
 .btn-default.btn-lg {
   color: #555;
@@ -229,6 +235,11 @@ button.login-btn {
 .btn-primary:active:hover {
   background-color: #d28300 !important;
 }
+
+.btn-primary.disabled {
+  background-color: #d28300 !important;
+}
+
 .panel-heading .btn-action {
   margin: 10px 5px;
   padding:0;
@@ -984,6 +995,11 @@ padding-top:10px;
   font-size: 1.1em;
   font-weight: bold;
   color: #555;
+}
+
+.table button {
+  margin:0;
+  padding: 0;
 }
 
 .input-group-addon {

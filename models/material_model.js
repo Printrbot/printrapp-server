@@ -6,7 +6,7 @@ var db = require('../config/database')
   , colors = require('colors');
 
 
-module.exports.getDefault = function()
+var getDefault = function()
 {
   return new Promise(function(resolve, reject) {
     db.get('materials', {}, function(err, materials) {
@@ -16,15 +16,40 @@ module.exports.getDefault = function()
   });
 }
 
-module.exports.getMaterialsByIdAndUser = function(material_id, user_id)
+
+var create = function(data)
 {
+  data.type = 'materials';
+  data.created_at = new Date().getTime();
+
   return new Promise(function(resolve, reject) {
-    db.get(material_id, {}, function(err, project) {
+    db.insert(data, [], function(err, project) {
       if (err) reject(err);
-      else if (project.user != user_id)
-        reject(new Error('Invalid user id'));
       else resolve(project);
     });
+  });
+}
+
+module.exports.createUserLibrary = function(user_id)
+{
+  return new Promise(function(resolve, reject) {
+    // grab default
+    getDefault()
+    .then(function(mat) {
+      delete (mat._id);
+      delete (mat._rev);
+      mat.user = user_id;
+      // create user library
+      create(mat)
+      .then(function(d) {
+        mat._id = d.id;
+        mat._rev = d.rev;
+        resolve(mat);
+      })
+    })
+    .catch(function(err) {
+      reject(err);
+    })
   });
 }
 
@@ -34,19 +59,6 @@ module.exports.getMaterialsByUser = function(user_id)
     db.view("materials", "list", {keys: [user_id], descending:true}, function(err, body) {
       if (err) reject(err);
       else resolve(body);
-    });
-  });
-}
-
-module.exports.create = function(data)
-{
-  data.type = 'materials';
-  data.created_at = new Date().getTime();
-
-  return new Promise(function(resolve, reject) {
-    db.insert(data, [], function(err, project) {
-      if (err) reject(err);
-      else resolve(project);
     });
   });
 }

@@ -23,12 +23,13 @@ function(
     events:
     {
       'click div.create-material': 'showCreateMaterialModal',
+      'click button.send-to-printer': 'sendToPrinter'
     },
 
     initialize: function(o)
     {
       this.tpl = _.template(Tpl);
-      this.listenTo(materials, 'change:_rev', function(e){
+      this.listenTo(materials, 'change:materials', function(e){
         this.render();
       }, this);
 
@@ -54,10 +55,42 @@ function(
       */
     },
 
+    sendToPrinter: function(e)
+    {
+      var sp = profileModel.getSelectedPrinter();
+      if (sp.status == 'online') {
+        var url = "http://files.printrapp.com/u/"+materials.get('user')+'/data/matlib';
+        var _headers = {};
+        if (sp.password && sp.password.length > 0) {
+          _headers.Authorization ="Basic " + sp.password;
+        }
+        console.info(_headers);
+        
+        $.ajax({
+          url: 'http://'+profileModel.getSelectedPrinter().ip+'/fetch?url='+url+'&type=materials',
+          cache: false,
+          type: 'GET',
+          headers: _headers,
+          success: function(r){
+            app.alert('info', 'Materials Sent to printer.');
+          },
+          error: function(r){
+            app.alert('error', 'Sending Materials failed.');
+          }
+        });
+
+        //$.get('http://'+profileModel.getSelectedPrinter().ip+'/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
+        //console.info('http://'+profileModel.getSelectedPrinter().ip+'/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
+        //app.alert('info', 'Project Sent to printer.');
+      } else {
+        app.alert('error', 'Printer is not available.');
+      }
+    },
+
     render: function()
     {
       console.info(materials)
-        this.$el.html(this.tpl({materials:materials.get('materials')}));
+        this.$el.html(this.tpl({materials:materials.get('materials'), profile: profileModel}));
         var pbv = this.loadView(new PrintrbarView(), 'printrbarview');
         this.$el.find('.header').prepend(pbv.render());
         //var s = this.loadView(new SearchBarView(), 'searchbar');

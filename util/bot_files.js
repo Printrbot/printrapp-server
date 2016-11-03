@@ -41,6 +41,37 @@ module.exports.reindex = function(projectWithItems)
   });
 }
 
+module.exports.buildMaterialLib = function(materials)
+{
+  return new Promise(function(resolve, reject) {
+
+    if (!materials) reject("please provide material object");
+    var lambda = new AWS.Lambda({
+        region: ac.region
+    });
+
+    lambda.invoke({
+      FunctionName: 'materials-dev-buildindex',
+      Payload: JSON.stringify(materials)
+    }, function(err, data) {
+      if (err) {
+        console.log(err, err.stack);
+        reject(err);
+      }
+      else {
+        console.info("Done with material lambda");
+        var output = JSON.parse(data.Payload);
+        if (output && output.hasOwnProperty("errorMessage")) {
+          console.log("ERROR:");
+          console.log(output.errorMessage);
+          reject(output.errorMessage);
+        }
+        resolve(output);
+      }
+    });
+  });
+}
+
 module.exports.slice = function(item) {
   return new Promise(function(resolve, reject) {
     var lambda = new AWS.Lambda({

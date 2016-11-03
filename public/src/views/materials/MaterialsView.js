@@ -1,12 +1,18 @@
 define([
   'app',
   'models/session',
+  'models/profile',
+  'models/materials',
+  'views/project/PrintrbarView',
   'text!./templates/materials.html'
 ],
 
 function(
   app,
   userModel,
+  profileModel,
+  materials,
+  PrintrbarView,
   Tpl
 )
 {
@@ -16,81 +22,52 @@ function(
     className: 'browser',
     events:
     {
-        'click div.create-material': 'showCreateMaterialModal',
-        'keyup input.search-field': 'onSearch'
+      'click div.create-material': 'showCreateMaterialModal',
     },
 
     initialize: function(o)
     {
-        this.tpl = _.template(Tpl);
+      this.tpl = _.template(Tpl);
+      this.listenTo(materials, 'change:_rev', function(e){
+        this.render();
+      }, this);
 
-        this.listenTo(app.channel, 'filter-material', function(e) {
-          this.renderMaterialGrid(e);
-        })
-
-
+      if (!materials.get('_rev')) {
+          materials.fetch();
+      }
     },
 
-        showCreateMaterialModal: function(e)
-        {
-          e.preventDefault();
-          e.stopPropagation();
-          /*
-          var that = this
-            , m = new ProjectModel()
-            , pm = new EditProjectModal(m);
+    showCreateMaterialModal: function(e)
+    {
+      e.preventDefault();
+      e.stopPropagation();
+      /*
+      var that = this
+        , m = new ProjectModel()
+        , pm = new EditProjectModal(m);
 
-          pm.open(function(o)
-          {
-            if (o.get('id'))
-              Backbone.history.navigate('project/'+o.get('id'), true)
-          });
-          */
-        },
+      pm.open(function(o)
+      {
+        if (o.get('id'))
+          Backbone.history.navigate('project/'+o.get('id'), true)
+      });
+      */
+    },
 
-        onSearch: function(e)
-        {/*
-            this.search = $(e.currentTarget).val().trim();
-            var s = this.search;
-            this.filtered = materialsCollection.filter(function(item) {
-                return item.get("name").indexOf(s) > -1
-            });
-            */
-        },
+    render: function()
+    {
+      console.info(materials)
+        this.$el.html(this.tpl({materials:materials.get('materials')}));
+        var pbv = this.loadView(new PrintrbarView(), 'printrbarview');
+        this.$el.find('.header').prepend(pbv.render());
+        //var s = this.loadView(new SearchBarView(), 'searchbar');
 
-        renderMaterialsGrid: function(projects)
-        {
-/*
-          var pb = this.$el.find('.materials-pan');
+        //this.$el.find('.search-block').append(s.render());
 
-          var pbc = pb.find('div.create-material').clone();
-          pb.empty();
+        //this.renderMaterialsGrid(this.materials);
 
-          pb.append(pbc);
-
-          _.each(this.pendingProjects, function(p) {
-              pb.append(new ProjectThumbView({'model':p}).render());
-          });
-
-          _.each(projects, function(p) {
-              var v = this.loadView(new ProjectThumbView({'model':p}), 'pt'+p.cid);
-              pb.append(v.render());
-          }, this);
-*/
-        },
-
-        render: function()
-        {
-            this.$el.html(this.tpl({}));
-
-            //var s = this.loadView(new SearchBarView(), 'searchbar');
-
-            //this.$el.find('.search-block').append(s.render());
-
-            //this.renderMaterialsGrid(this.materials);
-
-            return this.$el;
-        }
+        return this.$el;
+    }
     });
 
     return v;

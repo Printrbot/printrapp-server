@@ -16,7 +16,8 @@ define([
   'views/thingiverse/ThingiverseView',
   'views/thingiverse/TvCollectionView',
   'views/thingiverse/TvThingView',
-  'views/materials/MaterialsView'
+  'views/materials/MaterialsView',
+  'views/firmware/FirmwareView'
 ],
 
 function(
@@ -37,7 +38,8 @@ function(
    ThingiverseView,
    TvCollectionView,
    TvThingView,
-   MaterialsView
+   MaterialsView,
+   FirmwareView
 )
 {
 
@@ -100,6 +102,10 @@ function(
       }
       else if (app.selectedView == 'materials') {
         var b = this.loadView(new MaterialsView(), 'materials');
+        e.append(b.render());
+      }
+      else if (app.selectedView == 'firmware') {
+        var b = this.loadView(new FirmwareView(), 'firmware');
         e.append(b.render());
       }
       else if (app.selectedView == 'thingiverse-collection') {

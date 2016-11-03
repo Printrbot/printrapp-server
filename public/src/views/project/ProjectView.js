@@ -41,10 +41,6 @@ function(
         'click button.send-to-printer': 'sendToPrinter',
         'change input.project-photo-upload': 'uploadProjectPhoto',
         'change input.project-item-upload': 'uploadProjectItems',
-        'click .add-printer': 'addPrinter',
-        'click .select-printer': 'selectPrinter',
-        'click .edit-printer': 'editPrinter',
-        'click .delete-printer': 'deletePrinter'
       },
 
       initialize: function(o) {
@@ -174,51 +170,7 @@ function(
         }
       },
 
-      addPrinter: function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        var pm = new PrinterModal();
-        var that = this;
-        pm.open(function(o)
-        {
-          if (o) {
-            app.alert('info', 'Printer Added');
-            printers.scan();
-          } else {
-            app.alert('error', "Unable to add printer");
-          }
-          that.render();
-        });
-      },
-
-      selectPrinter: function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        var sp = $(e.currentTarget).text();
-        profileModel.selectPrinter(sp);
-      },
-
-      editPrinter: function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        var sp =  profileModel.getSelectedPrinter();
-
-        var pm = new PrinterModal(sp);
-        var that = this;
-        pm.open(function(o)
-        {
-          if (o) {
-            app.alert('info', 'Printer Updated');
-            printers.scan();
-          } else {
-            app.alert('error', "Unable to update printer");
-          }
-          that.render();
-        });
-      },
+  
 
       deletePrinter: function(e) {
         e.preventDefault();
@@ -252,14 +204,12 @@ function(
             }
           });
 
-
           //$.get('http://'+profileModel.getSelectedPrinter().ip+'/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
           //console.info('http://'+profileModel.getSelectedPrinter().ip+'/fetch?id='+this.projectModel.get('idx')+'&url='+url+'&type=project');
           //app.alert('info', 'Project Sent to printer.');
         } else {
           app.alert('error', 'Printer is not available.');
         }
-
       },
 
       uploadNextPendingFile: function()

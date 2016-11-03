@@ -114,6 +114,7 @@ button.login-btn {
 
 .modal-content {
     border-radius: 0;
+    border:none;
 }
 
 .modal-footer {
@@ -168,6 +169,11 @@ button.login-btn {
   border-radius: 0;
   line-height: 1.5em;
 }
+.btn-default:hover {
+  background-color: #222;
+  color: white;
+  border:none;
+}
 
 .btn-default.btn-lg {
   color: #555;
@@ -214,10 +220,14 @@ button.login-btn {
 }
 
 .btn-primary {
+  background-color: #F09500;
   color: white;
-  background-color: #222222;
   border-radius: 0;
-  border-color: transparent;
+  line-height: 1.5em;
+}
+.btn-primary:hover,
+.btn-primary:active:hover {
+  background-color: #d28300 !important;
 }
 .panel-heading .btn-action {
   margin: 10px 5px;
@@ -775,6 +785,11 @@ div.panel-body.print-settings {
   line-height: 1.5em;
 }
 
+.btn-danger:hover {
+  background-color: #ef3827 !important;
+  color: rgba(255,255,255,1);
+}
+
 .has-error .form-control {
   border:1px solid #f44336;
 }
@@ -1082,13 +1097,13 @@ button.disconnect {
   background-color: transparent
 }
 .sidebar .nav>li.active {
-  background-color: #212121;
+  background-color: #F09500;
 }
-
+/*
 .sidebar .nav>li.active.tv {
   background-color: #228BFA;
 }
-
+*/
 .sidebar .nav>li.active a {
   text-shadow: none;
 }

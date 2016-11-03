@@ -33,13 +33,9 @@ function(
         initialize: function(o)
         {
             this.tpl = _.template(Tpl);
-console.info('here');
             this.listenTo(printers, 'all', function(e) {
               this.render();
-              console.info(e);
             }, this);
-
-
         },
 
         definePrinter: function(e)

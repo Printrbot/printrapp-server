@@ -11,6 +11,7 @@ require.config(
     bootstrap: '../bower_components/bootstrap/dist/js/bootstrap',
     threejs: '../bower_components/threejs/build',
     growl: '../bower_components/bootstrap-growl-injectable/jquery.bootstrap-growl',
+    xeditable: '../bower_components/x-editable/dist/bootstrap3-editable/js/bootstrap-editable',
     localStorage: '../bower_components/backbone.localStorage/backbone.localStorage',
     bootbox: '../bower_components/bootbox.js/bootbox'
     //backbone_modelbinder: '../bower_components/backbone.modelBinder/Backbone.ModelBinder'

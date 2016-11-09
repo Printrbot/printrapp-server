@@ -38,6 +38,10 @@ function(
         }
       }, this)
 
+      this.listenTo(this.model, 'change:name', function(e) {
+        this.render();
+      }, this)
+
       this.listenTo(app.channel, 'item.uploaded', function(e) {
         if (!this.model.get('_id')) {
           if (this.model.get('name').toLowerCase() == e.name.toLowerCase()) {

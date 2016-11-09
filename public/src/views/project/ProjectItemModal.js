@@ -5,6 +5,7 @@ define([
     'libs/STLLoader',
     'libs/STLExporter',
     'libs/TrackballControls',
+    'xeditable',
     'text!./templates/project-item-modal.html'
 ],
 function(
@@ -14,6 +15,7 @@ function(
     stlloader,
     stlexporter,
     tbctrls,
+    xeditable,
     Tpl
 )
 {
@@ -400,6 +402,22 @@ function(
             'model': this.model,
             'edit': this.edit
           }));
+
+          var that = this;
+          this.$el.find('h4.modal-title').editable(
+            {
+              'mode': 'inline',
+              'success': function(r,v) {
+                that.model.set('name', v);
+                that.model.save();
+              },
+              'validate': function(v) {
+                if($.trim(v) == '') {
+                    return 'Please provide item name';
+                }
+              }
+            }
+          );
 
           return this.el;
         }

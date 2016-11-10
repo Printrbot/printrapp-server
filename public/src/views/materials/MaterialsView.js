@@ -3,7 +3,9 @@ define([
   'models/session',
   'models/profile',
   'models/materials',
+  'models/material',
   'views/project/PrintrbarView',
+  './EditMaterialModal',
   'text!./templates/materials.html'
 ],
 
@@ -12,7 +14,9 @@ function(
   userModel,
   profileModel,
   materials,
+  MaterialModel,
   PrintrbarView,
+  EditMaterialModal,
   Tpl
 )
 {
@@ -22,7 +26,8 @@ function(
     className: 'browser',
     events:
     {
-      'click div.create-material': 'showCreateMaterialModal',
+      'click button.create-material': 'showCreateMaterialModal',
+      'click .material-container table button': 'showEditMaterialModal',
       'click button.send-to-printer': 'sendToPrinter'
     },
 
@@ -42,17 +47,35 @@ function(
     {
       e.preventDefault();
       e.stopPropagation();
-      /*
+
       var that = this
-        , m = new ProjectModel()
-        , pm = new EditProjectModal(m);
+        , m = new MaterialModel()
+        , pm = new EditMaterialModal({model:m, index:-1});
 
       pm.open(function(o)
       {
+        that.render();
+        /*
         if (o.get('id'))
-          Backbone.history.navigate('project/'+o.get('id'), true)
+          Backbone.history.navigate('materials/'+o.get('id'), true)
+          */
       });
-      */
+    },
+
+    showEditMaterialModal: function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      var idx = $(e.currentTarget).attr('idx')
+        , material = materials.get('materials')[idx]
+        , that = this
+        , m = new MaterialModel(material)
+        , pm = new EditMaterialModal({model:m, index:idx});
+
+      pm.open(function(o)
+      {
+        that.render();
+      });
     },
 
     sendToPrinter: function(e)
@@ -64,8 +87,6 @@ function(
         if (sp.password && sp.password.length > 0) {
           _headers.Authorization ="Basic " + sp.password;
         }
-        console.info(_headers);
-        
         $.ajax({
           url: 'http://'+profileModel.getSelectedPrinter().ip+'/fetch?url='+url+'&type=materials',
           cache: false,
@@ -89,7 +110,6 @@ function(
 
     render: function()
     {
-      console.info(materials)
         this.$el.html(this.tpl({materials:materials.get('materials'), profile: profileModel}));
         var pbv = this.loadView(new PrintrbarView(), 'printrbarview');
         this.$el.find('.header').prepend(pbv.render());

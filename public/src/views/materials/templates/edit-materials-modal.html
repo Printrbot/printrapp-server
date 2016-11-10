@@ -1,0 +1,57 @@
+<div class="modal fade"  tabindex="-1" role="dialog" id="gass">
+    <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"><%- material.get('id') ? 'Edit' : 'Create' %> Material</h4>
+      </div>
+      <div class="modal-body">
+        <div class="panel-body">
+          <div class="form-group">
+            <label class="control-label">Material Name: </label>
+            <input type="text" class="form-control name" placeholder="name" value="<%- material.get('name') %>"/>
+          </div>
+          <div class="form-group">
+            <div><label class="control-label">Type: </label></div>
+            <div class="">
+              <select class="form-control type">
+                <% _.each(types, function(t) { %>
+                  <option value="<%- t %>" <% if (t == material.get('type')) { %>selected<% } %>><%- t %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="control-label">Brand: </label>
+            <input type="text" class="form-control brand" placeholder="brand" value="<%- material.get('brand') %>"/>
+          </div>
+          <div class="form-group">
+            <label class="control-label">Print Temperature: </label>
+            <input type="number" class="form-control print_temperature" placeholder="Print Temperature" value="<%- material.get('print_temperature') %>"/>
+          </div>
+          <div class="form-group">
+            <label class="control-label">Speed (%): </label>
+            <input type="number" class="form-control speed" placeholder="Speed" value="<%- material.get('speed') * 100 %>"/>
+          </div>
+
+          <div class="row">
+            <div class="form-group col-xs-6">
+              <label><input type="checkbox" class="fan"<%- (material.get('fan') ? ' checked':'') %>> Fan</label>
+            </div>
+
+            <div class="form-group col-xs-6">
+              <label><input type="checkbox" class="retraction"<%- (material.get('retraction') ? ' checked':'') %>> Retraction</label>
+            </div>
+          </div>
+        </div>
+
+      <div class="modal-footer">
+        <% if (material.get('name')) { %>
+          <div class="pull-left"><button type="button" class="btn btn-danger delete"><i class="fa fa-remove"></i> Delete</button></div>
+        <% } %>
+
+        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Cancel</button>
+        <button type="button" class="btn btn-primary save"><i class="fa fa-check"></i> Save</button>
+      </div>
+    </div>
+  </div>
+</div>

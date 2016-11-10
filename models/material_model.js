@@ -58,7 +58,8 @@ module.exports.getMaterialsByUser = function(user_id)
   return new Promise(function(resolve, reject) {
     db.view("materials", "list", {keys: [user_id], descending:true}, function(err, body) {
       if (err) reject(err);
-      else resolve(body);
+      if (body.rows.length == 0) resolve(null);
+      else resolve(body.rows[0].value);
     });
   });
 }
@@ -66,13 +67,16 @@ module.exports.getMaterialsByUser = function(user_id)
 
 module.exports.update = function(data)
 {
+
   data.type = 'materials';
   data.updated_at = new Date().getTime();
 
+  console.info(data);
+
   return new Promise(function(resolve, reject) {
-    db.insert(data, [], function(err, project) {
+    db.insert(data, [], function(err, materials) {
       if (err) reject(err);
-      else resolve(project);
+      else resolve(materials);
     });
   });
 }

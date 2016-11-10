@@ -21,9 +21,8 @@ module.exports = function(app) {
     checkAuth.verifyHeader(req.headers).then(function(udata) {
       MaterialModel.getMaterialsByUser(udata.id)
       .then(function(mat) {
-        console.info(mat);
-        if (mat.rows.length > 0) {
-          res.json(mat.rows[0].value);
+        if (mat) {
+          res.json(mat);
         } else {
           MaterialModel.createUserLibrary(udata.id)
           .then(function(mat) {
@@ -43,6 +42,39 @@ module.exports = function(app) {
       // error
       console.info(err);
       return res.sendStatus(400);
+    });
+  });
+
+  app.post('/api/materials', function(req, res)
+  {
+    checkAuth.verifyHeader(req.headers)
+    .then(function(udata) {
+      return MaterialModel.getMaterialsByUser(udata.id)
+    })
+    .then(function(materials) {
+
+      var b = req.body;
+      if (b.materials) {
+        materials.materials = b.materials;
+        MaterialModel.update(materials);
+
+        return BotFiles.buildMaterialLib(materials)
+      }
+
+      return materials;
+      //return materials;
+    })
+    .then(function(materials) {
+      // hit lambda to generate new material library
+          return res.sendStatus(materials);
+      //console.info(materials);
+      // res.json({ok:ok});
+
+    })
+    .catch(function(err) {
+      // error
+      console.info("Error trying to update materials", err);
+      res.sendStatus(400);
     });
   });
 

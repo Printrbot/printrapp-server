@@ -13,24 +13,29 @@
           <th>Brand</th>
           <th>Print Temperature</th>
           <th>Speed</th>
+          <th>Fan</th>
+          <th>Retraction</th>
           <th></th>
       </tr>
     </thead>
     <tbody>
-    <% _.each(materials, function(m) { %>
+    <% _.each(materials, function(m, k) {  %>
       <tr>
         <td><b><%- m.name %></b></td>
         <td><%- m.type %></td>
         <td><%- m.brand %></td>
         <td><%- m.print_temperature %></td>
         <td><%- m.speed * 100 %>%</td>
-        <td style="width:30px"><button class="btn btn-sm"><i class="fa fa-edit"></i></button></td>
+        <td><% if(m.fan) {%><i class="fa fa-check"></i><% } %></i></td>
+        <td><% if(m.retraction) {%><i class="fa fa-check"></i><% } %></td>
+        <td style="width:30px"><button class="btn btn-sm" idx="<%- k %>"><i class="fa fa-edit"></i></button></td>
       </tr>
     <% }) %>
     </tbody>
   </table>
 </div>
 
+<button class="btn btn-default create-material"><i class="fa fa-plus"></i></button>
 <% if (profile.get('printers').length > 0) { %>
 <button class="btn btn-default send-to-printer"><i class="fa fa-paper-plane"></i> Send to Printer</button>
 <% } %>

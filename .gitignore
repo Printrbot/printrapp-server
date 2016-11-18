@@ -2,15 +2,8 @@ config/*
 node_modules
 public-build
 uploads/*
-
 public/src/views/browser/TEMPLATEModal.js
-
 public/src/views/browser/templates/template.html
 public/firmware/*
-public/firmware/firmware.bin
-
-public/firmware/mk20.bin
-
 public/images/connect_thingiverse.png
-
 public/images/mmf.png

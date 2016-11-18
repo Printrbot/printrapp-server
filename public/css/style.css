@@ -291,6 +291,12 @@ input:-webkit-autofill {
   padding-left: 0;
   padding-top:12px;
 }
+.nav-bottom {
+  position: absolute;
+  bottom: 5px;
+}
+
+
 .index-view nav {
 	border: none;
 }

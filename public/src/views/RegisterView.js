@@ -48,7 +48,7 @@ function(
         {
           this.hasErrors = false;
 
-          var required = ['first_name', 'last_name', 'email', 'password'];
+          var required = ['first_name', 'last_name', 'email', 'password', 'serial'];
           _.each(required, function(e) {
             this.validateEmpty(e);
           }, this)
@@ -60,7 +60,6 @@ function(
 
           // disable submit button
           $('.register-btn').prop("disabled",true);
-
             // ajax post
             $.ajax({
               method: "POST",
@@ -78,6 +77,7 @@ function(
 
                 if (msg.status == "error") {
                   app.alert('error', msg.message);
+                  return
                 }
 
                 if (msg.status == "success") {

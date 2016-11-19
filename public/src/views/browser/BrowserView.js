@@ -6,6 +6,7 @@ define([
   'views/browser/SearchBarView',
   'views/browser/ProjectThumbView',
   'views/project/EditProjectModal',
+  'views/project/PrintrbarView',
   'text!./templates/browser.html'
 ],
 
@@ -17,6 +18,7 @@ function(
   SearchBarView,
   ProjectThumbView,
   EditProjectModal,
+  PrintrbarView,
   Tpl
 )
 {
@@ -179,9 +181,9 @@ function(
         render: function()
         {
             this.$el.html(this.tpl({ search: this.search }));
-
+            var pbv = this.loadView(new PrintrbarView(), 'printrbarview');
+            this.$el.find('.header').prepend(pbv.render());
             var s = this.loadView(new SearchBarView(), 'searchbar');
-
             this.$el.find('.search-block').append(s.render());
 
             this.renderProjectsGrid(this.projects);

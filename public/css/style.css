@@ -26,6 +26,10 @@
   }
 }
 
+a {
+    color: #555;
+}
+
 h1 {
   font-family: 'BebasNeueRegular', sans-serif;
   margin-top:0;

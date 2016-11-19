@@ -1,0 +1,60 @@
+extends layout
+block head
+  script(src='/bower_components/jquery/dist/jquery.js')
+block maincontent
+  div.container
+    div.row
+      div.col-xs-10.col-sm-6.col-sm-offset-3.col-md-4.col-md-offset-4.col-lg-3.col-lg-offset-4
+        div.login-header
+          a(href="/")
+            img(src="/images/printrbotdotcloud.svg",  style="width:100%")
+        div
+          p Enter your new password below
+        div.reset-form
+          div.form-group
+            input.form-control.password(type="password", placeholder="password")
+          div.form-group
+            input.form-control.password2(type="password", placeholder="confirm password")
+          div.form-group
+            button.btn.btn-default.reset-btn.col-xs-12 Reset Password
+
+  script(type="text/javascript").
+    $('button.reset-btn').click(function() {
+      var p = $('input.password').val();
+      var p2= $('input.password2').val();
+
+      if (p.length < 4)
+        return alert("Password must be more then four characters long")
+
+      if (p != p2)
+        alert("Passwords do not match");
+
+      $.ajax({
+        method: "POST",
+        url: '/user/resetpassword',
+        data: {
+          email: "#{email}",
+          token: "#{token}",
+          password: p,
+        }
+      })
+      .done(function(msg) {
+        $('.register-btn').prop("disabled",false);
+        if (msg.status == "error") {
+        console.info(msg.message)
+          alert(msg.message);
+
+          $('.reset-btn').prop("disabled",false);
+          return
+        }
+        if (msg.status == "success") {
+          alert("Your password has been updated. You can now log in with your new password.");
+          window.location = "http://printrbot.cloud/";
+        };
+      })
+      .fail(function( jqXHR, textStatus ) {
+        alert("There was an error trying to reset the password. Please try again.");
+        $('.reset-btn').prop("disabled",false);
+      });
+
+    })

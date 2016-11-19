@@ -4,6 +4,7 @@ define([
   'printers',
   'views/LoginView',
   'views/RegisterView',
+  'views/ResetPasswordView',
   'views/SidebarView',
   'views/UserView',
   'views/ProfilebarView',
@@ -26,6 +27,7 @@ function(
    printers,
    LoginView,
    RegisterView,
+   ResetPasswordView,
    SidebarView,
    UserView,
    ProfilebarView,
@@ -118,6 +120,10 @@ function(
       }
       else if (app.selectedView == 'register-printer') {
         var b = this.loadView(new RegisterPrinterView(), 'register-printer');
+        e.append(b.render());
+      }
+      else if (app.selectedView == 'resetpassword') {
+        var b = this.loadView(new ResetPasswordView(), 'resetpassword');
         e.append(b.render());
       }
       else if (app.selectedView == 'jobs') {

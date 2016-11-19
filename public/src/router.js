@@ -28,8 +28,10 @@ function(
       'printer/register': 'showRegisterPrinter',
       'jobs':'showJobs',
       'project/:id':'showProject',
+      'firmware':'showFirmware',
       'thingiverse': 'showThingiverse',
       'materials': 'showMaterials',
+      'resetpassword': 'showResetPassword',
       'thingiverse/:id': 'showThingiverse',
       'thingiverse/collection/:tvcid': 'showThingiverseCollection',
       'thingiverse/thing/:pid': 'showThingiverseThing',
@@ -50,6 +52,13 @@ function(
       this.topView.render();
     },
 
+    showResetPassword: function(e)
+    {
+      app.selectedView = 'resetpassword';
+      app.protected = false;
+      this.topView.render();
+    },
+
     showUser: function(e)
     {
       app.selectedView = 'user';
@@ -60,6 +69,13 @@ function(
     showBrowser: function(e)
     {
       app.selectedView = 'browser';
+      app.protected = true;
+      this.topView.render();
+    },
+
+    showFirmware: function(e)
+    {
+      app.selectedView = 'firmware';
       app.protected = true;
       this.topView.render();
     },

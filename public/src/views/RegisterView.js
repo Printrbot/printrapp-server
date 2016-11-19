@@ -69,6 +69,7 @@ function(
                 last_name: $('#last_name').val(),
                 email: $('#email').val(),
                 password: $('#password').val(),
+                serial: $('#serial').val()
               }
             })
             .done(function(msg) {

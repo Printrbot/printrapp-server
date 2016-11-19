@@ -6,8 +6,8 @@ var db = require('../config/database')
   , _ = require('underscore')
   , jwt = require('jsonwebtoken')
   , UserModel = require('../models/user_model')
-  , Mailer = require('../util/mailer');
-
+  , Mailer = require('../util/mailer')
+  , rp = require('request-promise');
 
 module.exports = function(app)
 {
@@ -42,7 +42,7 @@ module.exports = function(app)
 
   app.post('/api/register', function(req, res) {
     // verify that we have all required fields
-    var required = ['first_name', 'last_name', 'email', 'password'];
+    var required = ['first_name', 'last_name', 'email', 'password', 'serial'];
     var valid = true;
     _.each(required, function(r) {
       if (!req.body[r])
@@ -71,37 +71,60 @@ module.exports = function(app)
     if (req.body.password.length < 4)
       return res.json({ status: 'error', message: 'Password must be at least 4 characters long' });
 
-    UserModel.getUserByEmail(email)
-    .then(function(user) {
-      if (!user) {
-        // create user
-        var ud = {
-          email: email,
-          first_name: first_name,
-          last_name: last_name,
-          password: sha1(req.body.password + awsc.secret),
-          active: false,
-          verified: false,
-          token: token
-        }
-        UserModel.create(ud)
-        .then(function(user) {
-          console.info("USER CREATED");
-          // send registration email
-          return Mailer.sendVerificationEmail(email, token)
-        })
-        .then(function(e) {
-          res.json({ status: 'success'});
-        })
-      } else {
-        // already exists
-        res.json({ status: 'error', message: 'Email already registered'});
+    // verify serial number
+    var options = {
+      url: 'http://botdb.printrbot.com/api/serialcheck',
+      method: 'POST',
+      form: {
+        serial: req.body.serial
       }
+    }
+
+    rp(options).then(function(b) {
+      console.info("SERIAL > ", b)
+      b = JSON.parse(b);
+
+      console.info(b.serial);
+      console.info(b.name);
+      UserModel.getUserByEmail(email)
+      .then(function(user) {
+        if (!user) {
+          // create user
+          var ud = {
+            email: email,
+            first_name: first_name,
+            last_name: last_name,
+            password: sha1(req.body.password + awsc.secret),
+            active: false,
+            verified: false,
+            token: token,
+            serial: req.body.serial
+          }
+          UserModel.create(ud)
+          .then(function(user) {
+            console.info("USER CREATED");
+            // send registration email
+            return Mailer.sendVerificationEmail(email, token)
+          })
+          .then(function(e) {
+            res.json({ status: 'success'});
+          })
+        } else {
+          // already exists
+          res.json({ status: 'error', message: 'Email already registered'});
+        }
+      })
+      .catch(function(err) {
+        console.info("DB ERROR FETCHING USER BY EMAIL");
+        console.error(err);
+        res.json({status: 'error', message: 'Internal error, please try again'})
+      })
+
     })
     .catch(function(err) {
-      console.info("DB ERROR FETCHING USER BY EMAIL");
-      console.error(err);
-      res.json({status: 'error', message: 'Internal error, please try again'})
+      console.info(err);
+      res.json({ status: 'error', message: 'Invalid Serial Number'});
+      return;
     })
   });
 

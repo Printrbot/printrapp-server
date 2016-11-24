@@ -81,7 +81,7 @@ module.exports.slice = function(item) {
     console.info("RESLICING:".red);
 
     lambda.invoke({
-      FunctionName: 'slice-dev-testcura',
+      FunctionName: 'slice-prod-slice',
       Payload: JSON.stringify(item)
     }, function(err, data) {
       if (err) {

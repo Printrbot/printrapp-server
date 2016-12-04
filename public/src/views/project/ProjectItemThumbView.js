@@ -44,7 +44,7 @@ function(
             this.model.set('sliced', 'error');
             this.render();
           } else if (e.data.sliced == true) {
-            this.model.set('sliced', 'true');
+            this.model.set('sliced', true);
             this.render();
           }
         }

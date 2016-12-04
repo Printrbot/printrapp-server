@@ -191,9 +191,6 @@ function(
 		if (e.data == 'slicing.started') {
 			app.alert('info', 'Slicing started')
 		}
-		else if (e.data == 'slicing.completed') {
-			app.alert('info', 'Slicing completed')
-		}
 		else if (e.data == 'sending') {
 			app.alert('info', 'Sending job to printer')
 		}

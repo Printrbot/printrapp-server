@@ -336,12 +336,12 @@ module.exports = function(app) {
 
       var f = req.files.file;
       if (f.extension.toLowerCase() != "stl")
-        throw new Error('Invalid file format. Only STL files are supported');
+        throw new Error('Invalid file format. Only STL files are supported'.red);
 
       var pi = {
         "id": hat(),
         "idx": hat(32, 16),
-        "ver": 1,
+        "ver": 2,
         "sliced": false,
         "name": f.originalname.toLowerCase(),
         "type": "project_item",
@@ -355,33 +355,35 @@ module.exports = function(app) {
         "advanced": [],
         "created_at": new Date().getTime()
       }
-      console.info("UPDATING ITEM:");
+      console.info("UPDATING ITEM:".green);
       console.info(pi);
       // fix the uploaded file with admesh
       return MeshTools.fixStl(f.path) // maybe move this to lambda?
       .spread(function(file_path, lx, ly, lz) {
         pi.size = [lx, ly, lz];
         // upload stl to s3
-        console.info("UPLOADING TO S3")
+        console.info("UPLOADING TO S3".green)
         var s3uploadpath = 'u/'+project.user+'/i/'+pi.id+'/';
         var _f = f.path.split("/").pop();
         return FileRepo.uploadToS3(file_path, f.mimetype, s3uploadpath+_f)
       })
       .then(function(stl) {
-        console.info("UPDATING PROJECT WITH SRC ", stl);
+        console.info("UPDATING PROJECT WITH SRC ".green, stl);
         // update item with stl location
         console.info(stl);
         pi.file_path = stl.Key;
         return pi
       })
       .then(function(_pi) {
-        console.info("SAVING PROJECT ITEM TO DB")
+        console.info("SAVING PROJECT ITEM TO DB".green)
         // save this item in database
         return ProjectModel.createItem(pi);
       })
       .then(function(project_item_res) {
         // send message to render queue
-        console.info("SENDING RENDER MSG", pi)
+        console.info("HERE".red, project_item_res);
+        pi._rev = project_item_res.rev;
+        console.info("SENDING RENDER MSG ".green, pi)
         return MessageQueue.sendRenderMessage(pi)
         .then(function(q) {
           return [project, pi];
@@ -392,25 +394,54 @@ module.exports = function(app) {
       // slice it
       BotFiles.slice(item)
       .then(function(out) {
-        console.info("SLICING DONE, UPDATE ITEM HERE WITH SLICING STATUS");
-        console.info("ITEM: ", item);
+        console.info("SLICING DONE, UPDATE ITEM HERE WITH SLICING STATUS".green);
+        console.info("ITEM: ".green, item);
+        item.sliced = true;
+        ProjectModel.updateItem(item)
+        .spread(function(_data, _item) {
+          console.info("PROJECT ITEM UPDATED WITH SLICED:TRUE".green);
+          console.info("SENDING MESSAGE TO BROWSER TO UPDATE SLICING STATUS".green);
+          //return channel.emit('render.completed', item);
+          console.info(_item);
+          item._rev = _item.rev;
+          app.channel.emit('slicing.completed', item);
+        })
+      })
+      .catch(function(err) {
+        console.info("SLICING FAILED!!!".red);
+        // fetch the item from db, since it may have been updated
+        // and version may have changed
+        ProjectModel.getItem(item._id)
+        .then(function(item) {
+          item.sliced = "error";
+          return ProjectModel.updateItem(item)
+        })
+        .spread(function(_data, _item) {
+          console.info("PROJECT ITEM UPDATED WITH SLICED:ERROR".red);
+          console.info("SENDING MESSAGE TO BROWSER TO UPDATE SLICING STATUS".red);
+          //return channel.emit('render.completed', item);
+          console.info(_data);
+          console.info(_item);
+          _data._rev = _item.rev;
+          app.channel.emit('slicing.completed', _data);
+        })
       });
 
       // and reindex
-      console.info("REINDEXING")
-      console.info("PROJECT: ", project);
+      console.info("REINDEXING".green)
+      console.info("PROJECT: ".green, project);
       ProjectModel.getProjectItems(project._id)
       .then(function(items) {
         project.items = items;
         return project;
       })
       .then(function(projectWithItems) {
-        console.info("PROJECT WITH ITEMS: ", projectWithItems)
+        console.info("PROJECT WITH ITEMS: ".green, projectWithItems)
         return BotFiles.reindex(projectWithItems);
       })
       .then(function(output) {
         console.info(output);
-        console.info("DONE WITH REINDEX");
+        console.info("DONE WITH REINDEX".green);
       })
       return res.json(project);
     })
@@ -476,7 +507,7 @@ module.exports = function(app) {
       }
       return MeshTools.applyTransformations(data)
       .then(function(r) {
-        console.info("TRANSFORMATIOS DONE, SLICING...".blue)
+        console.info("TRANSFORMATIONS DONE, SLICING...".blue)
         console.info(r);
         // when we apply transformations, x,y and z size change
         // so update them

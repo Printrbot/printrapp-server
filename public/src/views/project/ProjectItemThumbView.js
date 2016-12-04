@@ -38,6 +38,18 @@ function(
         }
       }, this)
 
+      this.listenTo(app.channel, 'slicing.completed', function(e) {
+        if (this.model.get('_id') && this.model.get('_id') == e.data._id) {
+          if (e.data.sliced == "error" && this.model.get('sliced') != 'error') {
+            this.model.set('sliced', 'error');
+            this.render();
+          } else if (e.data.sliced == true) {
+            this.model.set('sliced', 'true');
+            this.render();
+          }
+        }
+      }, this)
+
       this.listenTo(this.model, 'change:name', function(e) {
         this.render();
       }, this)

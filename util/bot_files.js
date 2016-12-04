@@ -75,7 +75,11 @@ module.exports.buildMaterialLib = function(materials)
 module.exports.slice = function(item) {
   return new Promise(function(resolve, reject) {
     var lambda = new AWS.Lambda({
-      region: ac.region
+      region: ac.region,
+      maxRetries: 0,
+      httpOptions: {
+        timeout: 90000
+      }
     });
 
     console.info("RESLICING:".red);
@@ -85,6 +89,7 @@ module.exports.slice = function(item) {
       Payload: JSON.stringify(item)
     }, function(err, data) {
       if (err) {
+        console.info("ERROR SLICING FILE: ", err);
         console.log(err, err.stack);
         reject(err);
       }

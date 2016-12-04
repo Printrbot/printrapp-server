@@ -17,6 +17,7 @@
             <button class="show-three-dee"><i class="fa fa-cube"></i></button>
             <div class="psinfo">
               <ul>
+                <!--<li><%- model.get('_id') %></li>-->
               <% if (model.get('size')) { %>
                 <li class="sizex <%- (model.get('size')[0] > 220) ? 'danger' : '' %>" val="<%- model.get('size')[0] %>"><b>Size X:</b> <span><%- (model.get('size')[0]).toFixed(1) %>mm</span></li>
                 <li class="sizey <%- (model.get('size')[1] > 150) ? 'danger' : '' %>" val="<%- model.get('size')[1] %>"><b>Size Y:</b> <span><%- (model.get('size')[1]).toFixed(1) %>mm</span></li>

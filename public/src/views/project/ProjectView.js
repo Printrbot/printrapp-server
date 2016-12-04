@@ -96,9 +96,6 @@ function(
           if (!_m)
             this.projectModel.fetch();
 
-
-
-
         }, this)
 
         this.listenTo(app.channel, 'project.item-removed', function(item) {
@@ -170,7 +167,7 @@ function(
         }
       },
 
-  
+
 
       deletePrinter: function(e) {
         e.preventDefault();

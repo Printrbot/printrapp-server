@@ -1,4 +1,14 @@
 <div class="preview-block" idx="<%= item.get('id') %>">
+  <% if (item.get('ver') && item.get('ver') > 1) { %>
+    <% if (item.get('sliced') == false) { %>
+      <div class="sstatus" style="position:absolute;top:10px;left:15px"><i class="fa fa-spinner fa-spin"></i> slicing...</div>
+    <% } %>
+    <% if (item.get('sliced') == 'error') { %>
+      <div class="sstatus" style="position:absolute;top:10px;left:15px"><i class="fa fa-exclamation-circle"></i> unable to slice!</div>
+    <% } %>
+  <% } %>
+
+
 <% if (item.get('thumbnail')) { %>
   <img src="<%= item.get('thumbnail') %>" style="width:100%"/>
 <% } else { %>

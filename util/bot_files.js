@@ -96,7 +96,7 @@ module.exports.slice = function(item) {
           console.log(output.errorMessage);
           reject(output.errorMessage);
         }
-
+        console.info(output);
         resolve(output);
       }
     });

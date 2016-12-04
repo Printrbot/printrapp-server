@@ -341,6 +341,8 @@ module.exports = function(app) {
       var pi = {
         "id": hat(),
         "idx": hat(32, 16),
+        "ver": 1,
+        "sliced": false,
         "name": f.originalname.toLowerCase(),
         "type": "project_item",
         "user": project.user,
@@ -388,7 +390,11 @@ module.exports = function(app) {
     })
     .spread(function(project, item) {
       // slice it
-      BotFiles.slice(item);
+      BotFiles.slice(item)
+      .then(function(out) {
+        console.info("SLICING DONE, UPDATE ITEM HERE WITH SLICING STATUS");
+        console.info("ITEM: ", item);
+      });
 
       // and reindex
       console.info("REINDEXING")

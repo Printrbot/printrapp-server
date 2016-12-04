@@ -396,8 +396,13 @@ module.exports = function(app) {
       .then(function(out) {
         console.info("SLICING DONE, UPDATE ITEM HERE WITH SLICING STATUS".green);
         console.info("ITEM: ".green, item);
-        item.sliced = true;
-        ProjectModel.updateItem(item)
+
+
+        ProjectModel.getItem(item._id)
+        .then(function(item) {
+          item.sliced = true;
+          return ProjectModel.updateItem(item)
+        })
         .spread(function(_data, _item) {
           console.info("PROJECT ITEM UPDATED WITH SLICED:TRUE".green);
           console.info("SENDING MESSAGE TO BROWSER TO UPDATE SLICING STATUS".green);
@@ -405,7 +410,7 @@ module.exports = function(app) {
           console.info(_item);
           item._rev = _item.rev;
           app.channel.emit('slicing.completed', item);
-        })
+        });
       })
       .catch(function(err) {
         console.info("SLICING FAILED!!!".red);

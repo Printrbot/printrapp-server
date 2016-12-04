@@ -26,6 +26,7 @@ var express = require('express')
 
 io.attach(server);
 app.io = io;
+app.channel = channel;
 
 app.use(multer({ dest: './uploads/'}))
 
@@ -91,6 +92,10 @@ channel.on('render.completed', function(e) {
   io.to(e.user).emit('message', { "message": "render.completed", "data":e });
 });
 
+channel.on('slicing.completed', function(e) {
+  io.to(e.user).emit('message', { "message": "slicing.completed", "data":e });
+});
+
 channel.on('printer.connected', function(e) {
     console.info('in app printer.connected');
     io.to(e.user).emit('message', { "message": "printer.connected", "data":e.printer });
@@ -115,7 +120,6 @@ channel.on('job.download', function(e) {
 })
 
 renderMonitor.startPooling(channel);
-//slicerMonitor.startPooling(channel);
 //socketServer.start(channel);
 
 // socket.io authentication

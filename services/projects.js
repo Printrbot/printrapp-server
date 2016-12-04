@@ -396,8 +396,6 @@ module.exports = function(app) {
       .then(function(out) {
         console.info("SLICING DONE, UPDATE ITEM HERE WITH SLICING STATUS".green);
         console.info("ITEM: ".green, item);
-
-
         ProjectModel.getItem(item._id)
         .then(function(item) {
           item.sliced = true;
@@ -409,6 +407,7 @@ module.exports = function(app) {
           //return channel.emit('render.completed', item);
           console.info(_item);
           item._rev = _item.rev;
+          item.sliced = true;
           app.channel.emit('slicing.completed', item);
         });
       })

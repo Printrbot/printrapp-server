@@ -56,7 +56,7 @@ function(
             })
             this.model.fetch({ headers: {'Authorization' :'Bearer '+sessionModel.get('jwt')}});
             // temporary hardcoded
-            this.printerEnvelope = {x:220, y:150, z:200}
+            this.printerEnvelope = {x:220, y:150, z:215}
             this.modifier = null;
 
             this.listenTo(app.channel, 'render.completed', function(e){

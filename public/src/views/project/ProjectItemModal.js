@@ -287,12 +287,12 @@ function(
         drawEnvelope: function() {
 
           this.removeSceneObject("envelope");
-          var en = new THREE.Mesh(new THREE.BoxGeometry(220, 150, 160), new THREE.MeshBasicMaterial({
+          var en = new THREE.Mesh(new THREE.BoxGeometry(220, 150, 216), new THREE.MeshBasicMaterial({
             visible: false
           }));
 
           en.name = 'envelope';
-          en.position.z = 80;
+          en.position.z = 108;
 
           var eh = new THREE.EdgesHelper(en, 0x359BDD);
           eh.material.linewidth = 1;

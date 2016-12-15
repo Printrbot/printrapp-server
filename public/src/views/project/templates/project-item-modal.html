@@ -9,9 +9,9 @@
         <div class="">
           <div class="preview" syle="position:relative">
             <% if (model.get('preview')) { %>
-              <img src="<%- model.get('preview') %>"/>
+              <img  class="preview-image" src="<%- model.get('preview') %>"/>
             <% } else { %>
-              <img src="/images/loading.gif">
+              <img  class="preview-image" src="/images/loading.gif">
             <% } %>
 
             <button class="show-three-dee"><img src="/images/rotate3d.svg"/></button>

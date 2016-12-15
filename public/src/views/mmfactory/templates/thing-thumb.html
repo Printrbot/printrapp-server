@@ -1,0 +1,10 @@
+<div class="preview-block">
+<% if (thing.get('primary_image_url')) { %>
+  <img src="<%= thing.get('primary_image_url') %>" style="width: 100%"/ >
+<% } else { %>
+  <img src="/images/emptymmfcol.png" style="width: 100%"/ >
+<% } %>
+</div>
+<div class="project-footer">
+  <div class="project-name"><%= thing.get('title') %></div>
+</div>

@@ -6,6 +6,9 @@
     <li<% if (_.contains(['materials'], selectedView)) { %> class="active"<% } %>>
       <a href="#materials"><img src="/images/materials.svg" style="width:30px;margin-left:-10px;"/></a>
     </li>
+    <li<% if (_.contains(['mmfactory', 'mmfactory-collection', 'mmfactory-thing'], selectedView)) { %> class="active mmf"<% } %>>
+      <a href="#mmfactory"><img src="/images/mmf.svg" style="width:30px;margin-left:-10px;"/></a>
+    </li>
     <li<% if (_.contains(['thingiverse', 'thingiverse-collection', 'thingiverse-thing'], selectedView)) { %> class="active tv"<% } %>>
       <a href="#thingiverse"><img src="/images/thingiverse.svg" style="width:30px;margin-left:-10px;"/></a>
     </li>

@@ -109,13 +109,14 @@ module.exports.slice = function(item) {
 }
 
 module.exports.importThing = function(url, s3Path) {
+
   return new Promise(function(resolve, reject) {
     var lambda = new AWS.Lambda({
       region: ac.region
     });
     console.info("IMPORTING:".red);
     lambda.invoke({
-      FunctionName: 'importer-dev-importThingiverse',
+      FunctionName: 'importer-prod-import',
       Payload: JSON.stringify({url: url, key: s3Path})
     }, function(err, data) {
       if (err) {

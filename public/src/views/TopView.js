@@ -17,6 +17,9 @@ define([
   'views/thingiverse/ThingiverseView',
   'views/thingiverse/TvCollectionView',
   'views/thingiverse/TvThingView',
+  'views/mmfactory/MMFactoryView',
+  'views/mmfactory/MMFCollectionView',
+  'views/mmfactory/MMFThingView',
   'views/materials/MaterialsView',
   'views/firmware/FirmwareView'
 ],
@@ -40,6 +43,9 @@ function(
    ThingiverseView,
    TvCollectionView,
    TvThingView,
+   MMFactoryView,
+   MMFactoryCollectionView,
+   MMFThingView,
    MaterialsView,
    FirmwareView
 )
@@ -98,10 +104,6 @@ function(
         var b = this.loadView(new PrintersView(), 'printers');
         e.append(b.render());
       }
-      else if (app.selectedView == 'thingiverse') {
-        var b = this.loadView(new ThingiverseView(), 'thingiverse');
-        e.append(b.render());
-      }
       else if (app.selectedView == 'materials') {
         var b = this.loadView(new MaterialsView(), 'materials');
         e.append(b.render());
@@ -110,12 +112,28 @@ function(
         var b = this.loadView(new FirmwareView(), 'firmware');
         e.append(b.render());
       }
+      else if (app.selectedView == 'thingiverse') {
+        var b = this.loadView(new ThingiverseView(), 'thingiverse');
+        e.append(b.render());
+      }
       else if (app.selectedView == 'thingiverse-collection') {
         var b = this.loadView(new TvCollectionView(), 'thingiverse-collection');
         e.append(b.render());
       }
       else if (app.selectedView == 'thingiverse-thing') {
         var b = this.loadView(new TvThingView(), 'thingiverse-thing');
+        e.append(b.render());
+      }
+      else if (app.selectedView == 'mmfactory') {
+        var b = this.loadView(new MMFactoryView(), 'mmfactory');
+        e.append(b.render());
+      }
+      else if (app.selectedView == 'mmfactory-collection') {
+        var b = this.loadView(new MMFactoryCollectionView(), 'mmfactory-collection');
+        e.append(b.render());
+      }
+      else if (app.selectedView == 'mmfactory-thing') {
+        var b = this.loadView(new MMFThingView(), 'mmfactory-thing');
         e.append(b.render());
       }
       else if (app.selectedView == 'register-printer') {

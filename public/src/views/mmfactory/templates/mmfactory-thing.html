@@ -1,0 +1,47 @@
+<% if (!thing.get('title')) { %>
+<div class="col-xs-12">
+  <h1>Loading Thing</h1>
+</div>
+<div class="col-xs-12">
+<div class="alert alert-info">Loading thing, please wait</div>
+</div>
+<% } else { %>
+  <div class="col-xs-12">
+    <h1><%- thing.get('title') %></h1>
+  </div>
+
+  <div class="col-xs-12 col-md-4">
+
+
+    <div class="panel">
+      <div class="preview" style="min-height:100px">
+        <img class="" src="<%- thing.get('primary_image_url') %>"/>
+      </div>
+      <div class="panel-body">
+        <button class="btn btn-default import-thing"><i class="fa fa-download"></i> Import</button>
+        <button class="btn btn-mmf mmflink pull-right" style="background-color: #3fbc9c!important;border-radius:0;"><img src="/images/mmf.svg" style="height: 1.6em;position:relative;left:-3px"/><span style="color:white;position:relative;top:1px;left:2px">MyMiniFactory</span></button>
+      </div>
+    </div>
+
+  </div>
+<% } %>
+
+<div class="col-xs-12 col-md-8">
+  <div class="mmf-files">
+    <% _.each(thing.get('files'), function(f) { %>
+      <div class="project-block col-lg-2 col-md-3 col-sm-3 col-xs-6">
+        <% if (f.thumbnail_url) { %>
+        <div class="preview-block" idx="<%= f.id %>">
+          <img src="<%= f.thumbnail_url %>" style="width: 100%"/ >
+        <% } else { %>
+        <div class="preview-block" idx="<%= collection.get('id') %>">
+          <img src="/images/emptymmfcol.png" style="width: 100%"/ >
+        <% } %>
+        </div>
+        <div class="project-footer">
+          <div class="project-name"><%= f.name %></div>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+</div>

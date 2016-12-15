@@ -1,0 +1,20 @@
+<% if (!collection.get('name')) { %>
+<div class="col-xs-12">
+  <h1>Loading Collection</h1>
+</div>
+<div class="col-xs-12">
+<div class="alert alert-info">Loading things, please wait</div>
+</div>
+<% } else { %>
+  <div class="col-xs-12">
+    <h1><%- collection.get('name') %></h1>
+  </div>
+  <% if (collection.get('objects').length == 0) { %>
+    <div class="col-xs-12">
+    <div class="alert alert-danger">This collection is empty. Go to <a href="http://myminifactory.com" target="_blank">MyMiniFactory</a> web site and add things to this collection.</div>
+    </div>
+  <% } %>
+<% } %>
+
+<div class="mmf-things">
+</div>

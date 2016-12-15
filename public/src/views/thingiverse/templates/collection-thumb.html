@@ -1,8 +1,7 @@
+<div class="preview-block" idx="<%= collection.get('id') %>">
 <% if (collection.get('thumbnail')) { %>
-<div class="preview-block" idx="<%= collection.get('id') %>">
-  <img src="<%= collection.get('thumbnail').replace('thumb_medium', 'preview_card').replace('thumb_large', 'preview_card') %>" style="width: 100%"/ >
-<% } else { %>
-<div class="preview-block" idx="<%= collection.get('id') %>">
+  <img src="<%= collection.get('thumbnail') %>" style="width: 100%"/ >
+<% } else if (collection.get('primary_image_url')) { %>
   <img src="/images/noimage_thumb.png" style="width: 100%"/ >
 <% } %>
 </div>

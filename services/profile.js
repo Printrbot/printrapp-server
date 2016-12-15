@@ -25,6 +25,7 @@ module.exports = function(app)
         u.email = user.email;
         u.thingiverse_token = user.thingiverse_token;
         u.thingiverse = user.thingiverse;
+        u.mmfactory = user.mmfactory
         res.json(u);
       })
       .catch(function(err) {

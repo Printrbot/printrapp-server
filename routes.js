@@ -7,4 +7,5 @@ module.exports = function(server)
     require('./services/jobs')(server);
     require('./services/thingiverse')(server);
     require('./services/materials')(server);
+    require('./services/mmfactory')(server);
 }

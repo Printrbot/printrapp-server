@@ -29,12 +29,16 @@ function(
       'jobs':'showJobs',
       'project/:id':'showProject',
       'firmware':'showFirmware',
-      'thingiverse': 'showThingiverse',
       'materials': 'showMaterials',
       'resetpassword': 'showResetPassword',
+      'thingiverse': 'showThingiverse',
       'thingiverse/:id': 'showThingiverse',
       'thingiverse/collection/:tvcid': 'showThingiverseCollection',
       'thingiverse/thing/:pid': 'showThingiverseThing',
+      'mmfactory': 'showMMFactory',
+      'mmfactory/:id': 'showMMFactory',
+      'mmfactory/collection/:mmfuid/:mmfcid': 'showMMFactoryCollection',
+      'mmfactory/thing/:pid': 'showMMFactoryThing',
       'logout':'logOut'
     },
 
@@ -119,6 +123,34 @@ function(
       app.selectedView = 'thingiverse-thing';
       app.protected = true;
       app.selectedThingiverseThing = pid;
+      this.topView.render();
+    },
+
+    showMMFactory: function(e)
+    {
+      app.selectedView = 'mmfactory';
+      app.protected = true;
+      this.topView.render();
+    },
+
+    showMMFactoryCollection: function(mmfuid, mmfcid)
+    {
+      if (!mmfcid || !mmfuid)
+        Backbone.history.navigate('mmfactory', true)
+      app.selectedView = 'mmfactory-collection';
+      app.protected = true;
+      app.selectedMMFactoryCollection = mmfuid + '/' + mmfcid;
+      this.topView.render();
+    },
+
+    showMMFactoryThing: function(pid)
+    {
+      if (!pid)
+        Backbone.history.navigate('mmfactory', true)
+
+      app.selectedView = 'mmfactory-thing';
+      app.protected = true;
+      app.selectedMMFactoryThing = pid;
       this.topView.render();
     },
 

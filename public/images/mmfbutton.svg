@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0" y="0" width="210" height="33" viewBox="0, 0, 210, 33">
+  <g id="Layer_1">
+    <path d="M6.946,30.424 L1,28.973 L1,1.125 L6.923,1.125 L16.068,17.894 L25.419,1.125 L31.199,1.125 L31.199,29.042 L25.259,30.355 L25.19,13.701 L19.063,23.583 L19.063,31.115 L16.137,31.875 L13.073,31.115 L13.073,23.583 L7.014,13.84 L6.946,30.424 z" fill="#FFFFFF"/>
+    <text transform="matrix(1, 0, 0, 1, 180.425, 16.5)">
+      <tspan x="-141.425" y="7.062" font-family="HelveticaNeue-Medium" font-size="23" fill="#FFFFFF">MyMiniFactory</tspan>
+    </text>
+  </g>
+</svg>

@@ -113,8 +113,10 @@ function(
           }, this);
 
           this.listenTo(app.channel, 'render.completed', function(e) {
-            this.model.set(e.data);
-            this.$el.find('.preview img').attr('src', e.data.preview);
+            if (this.model.get('id') == e.data.id) {
+              this.model.set(e.data);
+              this.$el.find('.preview img.preview-image').attr('src', e.data.preview);
+            }
           }, this)
 
         },
@@ -380,7 +382,7 @@ function(
               that.$el.find('.loader').hide();
               that.show('div.read');
 
-              that.$el.find('.preview img').attr('src', '/images/loading.gif')
+              that.$el.find('.preview img.preview-image').attr('src', '/images/loading.gif')
               app.alert("info", "Rendering new preview image")
               //debugger;
             },

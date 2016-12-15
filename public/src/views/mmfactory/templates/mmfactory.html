@@ -1,0 +1,34 @@
+<div class="col-xs-12">
+  <h1>MyMiniFactory Collections</h1>
+</div>
+
+<% if (mmfConnecting) { %>
+<div>
+  <div class="col-sm-12 alert alert-info">Loading collections, please wait...</div>
+</div>
+<% } else { %>
+<% if (!mmfConnected) {%>
+  <div class="col-xs-10  col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4 col-lg-3 col-lg-offset-4">
+      <div class="login-header">
+        <img src="/images/mmfm.png" style="margin:10px auto 30px"/>
+      </div>
+  <div>
+    <div class="login-form">
+      <div class="form-group">
+          <input type="mmf_username" class="form-control mmf-username" placeholder="login id" value=""/>
+      </div>
+      <div class="form-group">
+        <input type="password" class="form-control mmf-password" placeholder="password" value=""/>
+      </div>
+      <div class="form-group">
+          <button class="btn btn-default login-mmf-btn col-xs-12">Login</button>
+      </div>
+      <div class="register">
+        <a href="https://www.myminifactory.com"><i class="fa fa-user"></i> Create account</a> &nbsp; &nbsp;
+      </div>
+    </div>
+  </div>
+</div>
+<% } %>
+<div class="mmf-collections"></div>
+<% } %>

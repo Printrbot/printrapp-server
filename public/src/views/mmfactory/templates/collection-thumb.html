@@ -1,0 +1,11 @@
+<% if (collection.get('cover_url')) { %>
+<div class="preview-block" idx="<%= collection.get('id') %>">
+  <img src="<%= collection.get('cover_url') %>" style="width: 100%"/ >
+<% } else { %>
+<div class="preview-block" idx="<%= collection.get('id') %>">
+  <img src="/images/emptymmfcol.png" style="width: 100%"/ >
+<% } %>
+</div>
+<div class="project-footer">
+  <div class="project-name"><%= collection.get('name') %></div>
+</div>

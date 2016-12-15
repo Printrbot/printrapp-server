@@ -93,27 +93,6 @@ function(
 
 
       bootbox.alert("<h1>Importing Project</h1><br/><p>Project import started. It may take few minutes before all files are imported shows up in your projects list.")
-
-      /*
-      var pm = new ProjectModel();
-      pm.set({
-        name: this.thingModel.get('name'),
-        description: this.thingModel.get('description'),
-        repo_src: this.thingModel.get('url'),
-        repo_name: 'thingiverse',
-        preview: this.thingModel.get('thumbnail').replace('thumb_medium','preview_featured')
-      })
-      pm.save({}, {
-        'success': function(e) {
-          //
-          Backbone.history.navigate('project/'+o.get('id'), true)
-        },
-        'error': function(e) {
-          app.alert('error', 'unable to import the model')
-        }
-      });
-
-      */
     },
 
     render: function() {

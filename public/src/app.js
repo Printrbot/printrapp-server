@@ -51,6 +51,7 @@ function(
 	app.protected = false;
 	app.hostUrl = window.location.origin;
 	app.filesUrl = 'https://s3-us-west-2.amazonaws.com/files.printrapp.com/';
+	app.mmfApiUrl = 'https://www.myminifactory.com/api/v1';
 
 	app.sync = function (method, model, options)
 	{

@@ -50,6 +50,18 @@ function(
         }
       }, this)
 
+      this.listenTo(app.channel, 'gcode.fixed', function(e) {
+        if (this.model.get('_id') && this.model.get('_id') == e.data._id) {
+          if (e.data.fixed == "error" && this.model.get('fixed') != 'error') {
+            this.model.set('fixed', 'error');
+            this.render();
+          } else if (e.data.fixed == true) {
+            this.model.set(e.data);
+            this.render();
+          }
+        }
+      }, this)
+
       this.listenTo(this.model, 'change:name', function(e) {
         this.render();
       }, this)

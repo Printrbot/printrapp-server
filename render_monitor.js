@@ -30,7 +30,7 @@ function onReceiveMessage(err, data)
     poolMessages();
   }
   else {
-    console.info("RECEIVED RENDER COMPLETED MESSAGE".red);
+    //console.info("RECEIVED RENDER COMPLETED MESSAGE".red);
     // check if we got any messages
     if (data.Messages) {
       var message = data.Messages[0];

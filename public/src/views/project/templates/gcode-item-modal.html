@@ -1,0 +1,41 @@
+<div class="modal fade"  tabindex="-1" role="dialog" id="gass">
+    <div class="modal-dialog">
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"><%- model.get('name') %> &nbsp; <i class="fa fa-pencil"></i> </h4>
+      </div>
+      <div class="modal-body">
+        <div class="">
+
+          <% if (model.get('fixed') == 'error') { %>
+            <div style="padding: 15px">
+              <h5>ERROR POST PROCESSING GCODE</h5>
+
+              <p>This gcode failed when trying to post process it for Printrbot. Since Printrbot is using extended gcode, any custom uploaded gcode must be validated and converted to make sure it is compatible with your printer.</p>
+
+              <p>Please check that you are uploading valid GCODE file. Post processing is limited to 180 seconds. If your file is too large, it may exceed the maximum time allowed for post processing.</p>
+            </div>
+          <% } else { %>
+            <div class="preview" syle="position:relative">
+              <% if (model.get('preview')) { %>
+                <img  class="preview-image" src="<%- model.get('preview') %>"/>
+              <% } else { %>
+                <img  class="preview-image" src="/images/loading.gif">
+              <% } %>
+            </div>
+          <% } %>
+        </div>
+
+      </div> <!-- modal body -->
+
+      <div class="modal-footer">
+          <div class="read">
+            <button type="button" class="btn btn-danger delete delete-btn pull-left"><i class="fa fa-trash"></i> Delete</button>
+            <!--<button type="button" class="btn btn-default getgcode pull-left"><i class="fa fa-download"></i></button>-->
+            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -13,6 +13,7 @@ function(
 
     defaults: {
       type: 'project_item',
+      ftype: 'stl',
       resolution: 'standard',
       infil: 'standard',
       support: false,

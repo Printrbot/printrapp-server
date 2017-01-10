@@ -6,7 +6,8 @@ define([
     'libs/STLExporter',
     'libs/TrackballControls',
     'xeditable',
-    'text!./templates/project-item-modal.html'
+    'text!./templates/project-item-modal.html',
+    'text!./templates/gcode-item-modal.html'
 ],
 function(
     app,
@@ -16,7 +17,8 @@ function(
     stlexporter,
     tbctrls,
     xeditable,
-    Tpl
+    Tpl,
+    TplG
 )
 {
     var v = Backbone.View.extend(
@@ -50,7 +52,9 @@ function(
 
           },
           'click button.getgcode': 'getgcode',
-          'click button.delete': 'delete',
+          'click button.delete': function(e) {
+            this.delete(e);
+          },
           'click button.save': 'save',
           'click button.show-three-dee': 'show3dView',
           'click button.cancel-three-dee': function() {
@@ -84,7 +88,8 @@ function(
           'keypress': function(e) {
             if (e.which == 13)
               this.save();
-          }
+          },
+          'change input.gcode-preview-upload': 'uploadGcodePreview',
         },
 
         show: function(cls) {
@@ -100,24 +105,35 @@ function(
           this.projectModel = pm;
           this.model = pim;
           this.edit = false;
-          this.template = _.template(Tpl);
-          this.stlLoaded = false;
+          if (this.model.get('ftype') == 'stl') {
+            this.stlLoaded = false;
+            this.template = _.template(Tpl);
+            this.listenTo(app.channel, 'render.completed', function(e) {
+              if (this.model.get('id') == e.data.id) {
+                this.model.set(e.data);
+                this.$el.find('.preview img.preview-image').attr('src', e.data.preview);
+              }
+            }, this)
+          }
+          else {
+            this.template = _.template(TplG);
+            this.listenTo(app.channel, 'gcode.fixed', function(e) {
+              if (this.model.get('id') == e.data.id) {
+                this.model.set({'fixed':true});
+              }
+            }, this)
+          }
 
           this.listenTo(this.model, 'change', function(e){
-            if (e.changed.support)
-              this.$el.find('span.support').html((e.changed.support?'Yes':'No'));
-            if (e.changed.infill)
-              this.$el.find('span.infill').html(e.changed.infill);
-            if (e.changed.resolution)
-                this.$el.find('span.resolution').html(e.changed.resolution);
-          }, this);
-
-          this.listenTo(app.channel, 'render.completed', function(e) {
-            if (this.model.get('id') == e.data.id) {
-              this.model.set(e.data);
-              this.$el.find('.preview img.preview-image').attr('src', e.data.preview);
+            if (this.model.get('ftype') == 'stl') {
+              if (e.changed.support)
+                this.$el.find('span.support').html((e.changed.support?'Yes':'No'));
+              if (e.changed.infill)
+                this.$el.find('span.infill').html(e.changed.infill);
+              if (e.changed.resolution)
+                  this.$el.find('span.resolution').html(e.changed.resolution);
             }
-          }, this)
+          }, this);
 
         },
 
@@ -390,7 +406,50 @@ function(
               app.alert('error', 'Unable to save the file. Please try again.')
             }
           });
+        },
 
+        uploadGcodePreview: function(e)
+        {
+          var that = this;
+          var file = (e.currentTarget.files && e.currentTarget.files[0]) ? e.currentTarget.files[0] : false;
+          if (!file)
+            return;
+          var ext = file.name.split(".").pop().toLowerCase();
+          if (ext == 'jpg' || ext == 'jpeg' || ext == 'png') {
+            var data = new FormData();
+            data.append('file', file);
+            app.alert('info', 'Uploading, please wait...');
+          	$.ajax({
+      				url: '/api/project/'+this.projectModel.get('id')+'/uploadpreview',
+      				cache: false,
+      				data: data,
+      				contentType: false,
+      				processData: false,
+      				type: 'POST',
+              headers: {
+                'authorization': 'Bearer '+sessionModel.get('jwt')
+              },
+      				success: function(r){
+                console.info('in success');
+                app.alert('info', 'Project preview updated')
+                that.projectModel.fetch(
+                  {
+                    success: function(e) {
+                      console.info('oh yaya');
+                      that.render();
+                    }
+                  }
+                );
+
+      				},
+      				error: function(err){
+      					console.info(err);
+                app.alert('error', 'Unable to upload project preview. Please try a different photo.');
+      				}
+      			});
+          } else {
+            return app.alert('error', 'Invalid file type. Only jpg and png files are supported.')
+          }
         },
 
         showLoader: function(m) {

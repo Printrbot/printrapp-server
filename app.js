@@ -96,6 +96,11 @@ channel.on('slicing.completed', function(e) {
   io.to(e.user).emit('message', { "message": "slicing.completed", "data":e });
 });
 
+channel.on('gcode.fixed', function(e) {
+  io.to(e.user).emit('message', { "message": "gcode.fixed", "data":e });
+});
+
+
 channel.on('printer.connected', function(e) {
     console.info('in app printer.connected');
     io.to(e.user).emit('message', { "message": "printer.connected", "data":e.printer });

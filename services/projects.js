@@ -16,6 +16,9 @@ var db = require('../config/database')
   , MeshTools = require('../util/mesh_tools')
   , BotFiles = require('../util/bot_files')
 
+var gcode_thumb = 'https://s3-us-west-2.amazonaws.com/files.printrapp.com/static/gcode_thumb.png';
+var gcode_preview = 'https://s3-us-west-2.amazonaws.com/files.printrapp.com/static/gcode_large.png';
+https://s3-us-west-2.amazonaws.com/files.printrapp.com/static/gcode_error_thumb.png
 
 module.exports = function(app) {
 
@@ -132,6 +135,7 @@ module.exports = function(app) {
       .then(function(e) {
         // clean up files
         var toclean = [];
+
         if (project.thumbnail)
           toclean.push({Key: decodeURIComponent(project.thumbnail.split(".com/")[1])});
         if (project.preview)
@@ -324,6 +328,76 @@ module.exports = function(app) {
     });
   }),
 
+  app.post('/api/project/:pid/item/:iid/uploadpreview', function(req, res) {
+    checkAuth.verifyHeader(req.headers)
+    .then(function(udata) {
+      return ProjectModel.getProjectItemByIdAndUser(req.params.id, udata.id)
+      .then(function(item) {
+        if (!req.files)
+          return res.sendStatus(400);
+        var f = req.files.file;
+        // accept only image files
+        if (!_.contains(['jpg', 'jpeg', 'png'], f.extension.toLowerCase()))
+          return res.sendStatus(400);
+        else {
+          var s3uploadpath = 'u/'+udata.id+'/p/'+item.project+'/i/'+item._id+'/';
+          // create preview, thumbnail and raw image for hub
+          return ImageTools.createAllSizes(f)
+          .then(function(j) {
+            var _f = j[0].split("/").pop();
+            return FileRepo.uploadToS3(j[0], 'img/png', s3uploadpath+_f)
+            .then(function(preview) {
+              return [j, preview];
+            })
+          })
+          .spread(function(j, preview) {
+            var _f = j[1].split("/").pop();
+            return FileRepo.uploadToS3(j[1], 'img/png', s3uploadpath+_f)
+            .then(function(thumb) {
+              return [j, preview, thumb];
+            })
+          })
+          .spread(function(j, preview, thumb) {
+            var _f = j[2].split("/").pop();
+            return FileRepo.uploadToS3(j[2], 'img/png', s3uploadpath+_f)
+            .then(function(raw) {
+              return [j, preview, thumb, raw];
+            })
+          })
+          .spread(function(j, preview, thumb, raw ) {
+            // save to db
+            item.preview = preview.Location;
+            item.thumbnail = thumb.Location;
+            item.rawimage = raw.Location;
+            return ProjectModel.updateItem(item).then(function(r) {
+              return item;
+            })
+          })
+        }
+      })
+      .then(function(item) {
+        // reindex
+        ProjectModel.getProjectWithItems(item.project)
+        .then(function(projectWithItems) {
+          return BotFiles.reindex(projectWithItems);
+        })
+        .then(function(output) {
+          console.info(output);
+          console.info("DONE WITH REINDEX");
+        })
+        .catch(function(err) {
+          console.info("ERROR: ", err);
+        })
+        res.json(item);
+      })
+    })
+    .catch(function(err) {
+      // error
+      console.info(err);
+      return res.sendStatus(400);
+    });
+  }),
+
   app.post('/api/project/:id/uploaditem', function(req, res)
   {
     console.info('in uploading item');
@@ -335,119 +409,202 @@ module.exports = function(app) {
     .then(function(project) {
 
       var f = req.files.file;
-      if (f.extension.toLowerCase() != "stl")
-        throw new Error('Invalid file format. Only STL files are supported'.red);
+      var f_type = f.extension.toLowerCase();
+
+      if (!_.contains(["stl", "gco"], f_type))
+        throw new Error('Invalid file format. Only STL & GCODE files are supported'.red);
 
       var pi = {
         "id": hat(),
         "idx": hat(32, 16),
         "ver": 2,
-        "sliced": false,
         "name": f.originalname.toLowerCase(),
         "type": "project_item",
         "user": project.user,
         "project": project._id,
         "region": "us-west-2",
-        "resolution": "standard",
-        "support": false,
-        "brim": false,
-        "infill": "standard",
-        "advanced": [],
         "created_at": new Date().getTime()
       }
-      console.info("UPDATING ITEM:".green);
-      console.info(pi);
-      // fix the uploaded file with admesh
-      return MeshTools.fixStl(f.path) // maybe move this to lambda?
-      .spread(function(file_path, lx, ly, lz) {
-        pi.size = [lx, ly, lz];
-        // upload stl to s3
-        console.info("UPLOADING TO S3".green)
+
+
+      // STL -----------------------------------------------------
+      if (f_type == 'stl') {
+        pi.sliced = false;
+        pi.ftype = 'stl';
+        pi.resolution = "standard";
+        pi.support = false;
+        pi.brim = false;
+        pi.infill = "standard";
+        pi.advanced = [];
+
+        // fix the uploaded file with admesh
+        return MeshTools.fixStl(f.path) // maybe move this to lambda?
+        .spread(function(file_path, lx, ly, lz) {
+          pi.size = [lx, ly, lz];
+          // upload stl to s3
+          console.info("UPLOADING TO S3".green)
+          var s3uploadpath = 'u/'+project.user+'/i/'+pi.id+'/';
+          var _f = f.path.split("/").pop();
+          return FileRepo.uploadToS3(file_path, f.mimetype, s3uploadpath+_f)
+        })
+        .then(function(stl) {
+          console.info("UPDATING PROJECT WITH SRC ".green, stl);
+          // update item with stl location
+          console.info(stl);
+          pi.file_path = stl.Key;
+          return pi
+        })
+        .then(function(_pi) {
+          console.info("SAVING PROJECT ITEM TO DB".green)
+          // save this item in database
+          return ProjectModel.createItem(pi);
+        })
+        .then(function(project_item_res) {
+          // send message to render queue
+          console.info("HERE".red, project_item_res);
+          pi._rev = project_item_res.rev;
+          console.info("SENDING RENDER MSG ".green, pi)
+          return MessageQueue.sendRenderMessage(pi)
+          .then(function(q) {
+            return [project, pi];
+          })
+        })
+      }
+
+      // GCODE --------------------------------------------
+      else if (f_type == 'gco') {
+        pi.ftype = 'gco';
+        pi.fixed = false;
+
+        console.info("UPLOADING GCODE TO S3".green)
+
         var s3uploadpath = 'u/'+project.user+'/i/'+pi.id+'/';
         var _f = f.path.split("/").pop();
-        return FileRepo.uploadToS3(file_path, f.mimetype, s3uploadpath+_f)
-      })
-      .then(function(stl) {
-        console.info("UPDATING PROJECT WITH SRC ".green, stl);
-        // update item with stl location
-        console.info(stl);
-        pi.file_path = stl.Key;
-        return pi
-      })
-      .then(function(_pi) {
-        console.info("SAVING PROJECT ITEM TO DB".green)
-        // save this item in database
-        return ProjectModel.createItem(pi);
-      })
-      .then(function(project_item_res) {
-        // send message to render queue
-        console.info("HERE".red, project_item_res);
-        pi._rev = project_item_res.rev;
-        console.info("SENDING RENDER MSG ".green, pi)
-        return MessageQueue.sendRenderMessage(pi)
-        .then(function(q) {
+
+        return FileRepo.uploadToS3(f.path, f.mimetype, s3uploadpath+_f)
+        .then(function(gfile) {
+          console.info("UPDATING PROJECT WITH SRC ".green, gfile);
+          pi.file_path = gfile.Key;
+          return pi
+        })
+        .then(function(_pi) {
+          console.info("SAVING PROJECT ITEM TO DB".green)
+          // save this item in database
+          return ProjectModel.createItem(pi);
+        })
+        .then(function(project_item_res) {
           return [project, pi];
         })
-      })
+        .catch(function(err) {
+          console.info("ERROR: ", err);
+          res.sendStatus(400);
+        })
+      }
     })
     .spread(function(project, item) {
-      // slice it
-      BotFiles.slice(item)
-      .then(function(out) {
-        console.info("SLICING DONE, UPDATE ITEM HERE WITH SLICING STATUS".green);
-        console.info("ITEM: ".green, item);
-        ProjectModel.getItem(item._id)
-        .then(function(item) {
-          item.sliced = true;
-          return ProjectModel.updateItem(item)
+      if (item.ftype == 'stl') {
+        // slice it
+        BotFiles.slice(item)
+        .then(function(out) {
+          console.info("SLICING DONE, UPDATE ITEM HERE WITH SLICING STATUS".green);
+          console.info("ITEM: ".green, item);
+          ProjectModel.getItem(item._id)
+          .then(function(item) {
+            item.sliced = true;
+            return ProjectModel.updateItem(item)
+          })
+          .spread(function(_data, _item) {
+            console.info("PROJECT ITEM UPDATED WITH SLICED:TRUE".green);
+            console.info("SENDING MESSAGE TO BROWSER TO UPDATE SLICING STATUS".green);
+            //return channel.emit('render.completed', item);
+            console.info(_item);
+            item._rev = _item.rev;
+            item.sliced = true;
+            app.channel.emit('slicing.completed', item);
+          });
         })
-        .spread(function(_data, _item) {
-          console.info("PROJECT ITEM UPDATED WITH SLICED:TRUE".green);
-          console.info("SENDING MESSAGE TO BROWSER TO UPDATE SLICING STATUS".green);
-          //return channel.emit('render.completed', item);
-          console.info(_item);
-          item._rev = _item.rev;
-          item.sliced = true;
-          app.channel.emit('slicing.completed', item);
+        .catch(function(err) {
+          console.info("SLICING FAILED!!!".red);
+          // fetch the item from db, since it may have been updated
+          // and version may have changed
+          ProjectModel.getItem(item._id)
+          .then(function(item) {
+            item.sliced = "error";
+            return ProjectModel.updateItem(item)
+          })
+          .spread(function(_data, _item) {
+            console.info("PROJECT ITEM UPDATED WITH SLICED:ERROR".red);
+            console.info("SENDING MESSAGE TO BROWSER TO UPDATE SLICING STATUS".red);
+            //return channel.emit('render.completed', item);
+            console.info(_data);
+            console.info(_item);
+            _data._rev = _item.rev;
+            app.channel.emit('slicing.completed', _data);
+          })
         });
-      })
-      .catch(function(err) {
-        console.info("SLICING FAILED!!!".red);
-        // fetch the item from db, since it may have been updated
-        // and version may have changed
-        ProjectModel.getItem(item._id)
-        .then(function(item) {
-          item.sliced = "error";
-          return ProjectModel.updateItem(item)
-        })
-        .spread(function(_data, _item) {
-          console.info("PROJECT ITEM UPDATED WITH SLICED:ERROR".red);
-          console.info("SENDING MESSAGE TO BROWSER TO UPDATE SLICING STATUS".red);
-          //return channel.emit('render.completed', item);
-          console.info(_data);
-          console.info(_item);
-          _data._rev = _item.rev;
-          app.channel.emit('slicing.completed', _data);
-        })
-      });
 
-      // and reindex
-      console.info("REINDEXING".green)
-      console.info("PROJECT: ".green, project);
-      ProjectModel.getProjectItems(project._id)
-      .then(function(items) {
-        project.items = items;
-        return project;
-      })
-      .then(function(projectWithItems) {
-        console.info("PROJECT WITH ITEMS: ".green, projectWithItems)
-        return BotFiles.reindex(projectWithItems);
-      })
-      .then(function(output) {
-        console.info(output);
-        console.info("DONE WITH REINDEX".green);
-      })
-      return res.json(project);
+        return res.json(item);
+      }
+
+      else if (item.ftype == 'gco') {
+
+
+        // hit lambda to fix the code and make it compatible with G2
+        BotFiles.fixGcode(item)
+        .then(function(out) {
+          console.info("GCODE FIX DONE, UPDATING ITEM".green);
+          console.info("ITEM: ".green, item);
+          ProjectModel.getItem(item._id)
+          .then(function(item) {
+            item.fixed = true;
+            item.thumbnail = gcode_thumb;
+            item.preview = gcode_preview;
+            return ProjectModel.updateItem(item)
+          })
+          .spread(function(_data, _item) {
+            console.info(_item);
+            _data._rev = _item.rev;
+            return _data;
+          })
+          .then(function(data) {
+            // reindex
+            console.info(data);
+            ProjectModel.getProjectByIdAndUser(data.project, data.user)
+            .then(function(project) {
+              return ProjectModel.getProjectItems(data.project)
+              .then(function(items) {
+                project.items = items;
+                return project;
+              })
+            })
+            .then(function(projectWithItems) {
+              BotFiles.reindex(projectWithItems)
+              app.channel.emit('gcode.fixed', data);
+            })
+            .catch(function(err) {
+              console.info("FAILED TO REInDEX AFTER GCODE FIX!".red);
+              console.info(err);
+              app.channel.emit('gcode.fixed', data);
+            })
+          })
+        })
+        .catch(function(err) {
+          console.info("FIXING GCODE FAILED!!!".red);
+          // fetch the item from db, since it may have been updated
+          // and version may have changed
+          ProjectModel.getItem(item._id)
+          .then(function(item) {
+            item.fixed = "error";
+            return ProjectModel.updateItem(item)
+          })
+          .spread(function(_data, _item) {
+            _data._rev = _item.rev;
+            app.channel.emit('gcode.fixed', _data);
+          })
+        });
+        return res.json(item);
+      }
+
     })
     .catch(function(err) {
       // error
@@ -469,19 +626,25 @@ module.exports = function(app) {
       .then(function(e) {
         // clean up files
         var toclean = [];
-        if (item.thumbnail)
+        if (item.thumbnail && item.thumbnail != gcode_thumb)
           toclean.push({Key: decodeURIComponent(item.thumbnail.split(".com/")[1])});
-        if (item.preview)
+        if (item.preview && item.preview != gcode_preview)
           toclean.push({Key: decodeURIComponent(item.preview.split(".com/")[1])});
         if (item.rawimage)
           toclean.push({Key: decodeURIComponent(item.rawimage.split(".com/")[1])});
         if (item.src)
           toclean.push({Key: decodeURIComponent(item.src.split(".com/")[1])});
+        if (item.file_path)
+            toclean.push({Key: decodeURIComponent(item.file_path)});
 
-        return FileRepo.deleteFiles(toclean)
-        .then(function(e) {
+        if (toclean.length > 0) {
+          return FileRepo.deleteFiles(toclean)
+          .then(function(e) {
+            return item;
+          });
+        } else {
           return item;
-        });
+        }
       })
     })
     .then(function(item) {

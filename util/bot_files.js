@@ -20,7 +20,7 @@ module.exports.reindex = function(projectWithItems)
     });
 
     lambda.invoke({
-      FunctionName: 'project-dev-buildindex',
+      FunctionName: 'project-prod-buildindex',
       Payload: JSON.stringify(projectWithItems)
     }, function(err, data) {
       if (err) {
@@ -107,6 +107,43 @@ module.exports.slice = function(item) {
     });
   })
 }
+
+module.exports.fixGcode = function(item) {
+  return new Promise(function(resolve, reject) {
+    var lambda = new AWS.Lambda({
+      region: ac.region,
+      maxRetries: 0,
+      httpOptions: {
+        timeout: 90000
+      }
+    });
+
+    console.info("FIXING GCODE:".red);
+
+    lambda.invoke({
+      FunctionName: 'gcode-prod-fix',
+      Payload: JSON.stringify(item)
+    }, function(err, data) {
+      if (err) {
+        console.info("ERROR FIXING GCODE FILE: ", err);
+        console.log(err, err.stack);
+        reject(err);
+      }
+      else {
+        console.info("GCODE FIX COMPLETED".green);
+        var output = JSON.parse(data.Payload);
+        if (output && output.hasOwnProperty("errorMessage")) {
+          console.log("ERROR:");
+          console.log(output.errorMessage);
+          reject(output.errorMessage);
+        }
+        console.info(output);
+        resolve(output);
+      }
+    });
+  })
+}
+
 
 module.exports.importThing = function(url, s3Path) {
 

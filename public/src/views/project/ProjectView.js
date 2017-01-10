@@ -230,7 +230,7 @@ function(
             },
             success: function(r){
               app.channel.trigger('item.uploaded', r);
-              app.alert('info', 'Project item uploaded. Rendering preview image...');
+              app.alert('info', 'Project item uploaded. Preparing for printer...');
               that.uploadNextPendingFile();
             },
             error: function(r){
@@ -263,7 +263,7 @@ function(
 
           _.each(fa, function(f) {
               var ext = f.name.split(".").pop().toLowerCase();
-              if (ext == 'stl') {
+              if (ext == 'stl' || ext == 'gco') {
                   var m = new ProjectItemModel({'name': f.name, 'size': f.size});
                   m.index = items.length;
                   items.push(m)
@@ -273,6 +273,7 @@ function(
                   invalid.push(f.name);
               }
           })
+
           that.projectModel.set('items', items)
 
           if (that.pendingUpload.length > 0) {
@@ -282,6 +283,7 @@ function(
 
           if (invalid.length > 0) {
               // TODO: error notification
+              app.alert('error', 'Only .gco and .stl files are supported');
           }
 
       },

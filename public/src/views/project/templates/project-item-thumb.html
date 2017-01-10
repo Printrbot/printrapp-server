@@ -1,19 +1,28 @@
 <div class="preview-block" idx="<%= item.get('id') %>">
   <% if (item.get('ver') && item.get('ver') > 1) { %>
-    <% if (item.get('sliced') == false) { %>
-      <div class="sstatus" style="position:absolute;top:10px;left:15px"><i class="fa fa-spinner fa-spin"></i> slicing...</div>
-    <% } %>
-    <% if (item.get('sliced') == 'error') { %>
-      <div class="sstatus" style="position:absolute;top:10px;left:15px"><i class="fa fa-exclamation-circle"></i> unable to slice!</div>
+
+    <% if (item.get('ftype') == 'stl') { %>
+      <% if (item.get('sliced') == false) { %>
+        <div class="sstatus" style="position:absolute;top:10px;left:15px"><i class="fa fa-spinner fa-spin"></i> slicing...</div>
+      <% } %>
+      <% if (item.get('sliced') == 'error') { %>
+        <div class="sstatus" style="position:absolute;top:10px;left:15px"><i class="fa fa-exclamation-circle"></i> unable to slice!</div>
+      <% } %>
     <% } %>
   <% } %>
 
 
-<% if (item.get('thumbnail')) { %>
-  <img src="<%= item.get('thumbnail') %>" style="width:100%"/>
-<% } else { %>
-  <img src="/images/rings.svg" style="width:100%">
+<% if (item.get('ftype') == 'gco' && item.get('fixed') == 'error') { %>
+  <img src="https://s3-us-west-2.amazonaws.com/static.printrbot.cloud/assets/images/gcode_error_thumb.png" style="width:100%">
+<% } else { console.info(item)%>
+  <% if (item.get('thumbnail')) { %>
+    <img src="<%= item.get('thumbnail') %>" style="width:100%"/>
+  <% } else { %>
+    <img src="/images/rings.svg" style="width:100%">
+  <% } %>
 <% } %>
+
+
 </div>
 <div class="project-footer">
   <% if (item.get('size') && (item.get('size')[0] > 220 || item.get('size')[1] > 155 || item.get('size')[2] > 215)

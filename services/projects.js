@@ -220,6 +220,9 @@ module.exports = function(app) {
           item[k] = v;
       });
 
+      if (sliceit)
+        item.sliced = false;
+
       return ProjectModel.updateItem(item)
       .then(function(item) {
         return [item, sliceit, reindex]
@@ -688,6 +691,7 @@ module.exports = function(app) {
         // so update them
         if (r.size) {
           item.size = r.size;
+          item.sliced = false;
           console.info("updating project item: ", item);
           ProjectModel.updateItem(item)
           .spread(function(_data, _item) {

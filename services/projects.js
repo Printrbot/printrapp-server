@@ -229,7 +229,7 @@ module.exports = function(app) {
       // call lambda slicer
       // (only if stuff changed)
       if (sliceit) {
-        BotFiles.slice(item[0])
+        MessageQueue.sendSliceMessage(item[0])
       }
 
       if (reindex) {
@@ -699,9 +699,7 @@ module.exports = function(app) {
             console.info(err);
           })
         }
-
-        // slice it, don't have to wait
-        BotFiles.slice(item)
+        MessageQueue.sendSliceMessage(item)
         .then(function(e) {
           console.info("SLICING FINISHED".green);
         })

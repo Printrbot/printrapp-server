@@ -22,10 +22,28 @@ module.exports.sendRenderMessage = function(item)
   })
 }
 
+module.exports.sendSliceMessage = function(item)
+{
+  return new Promise(function(resolve, reject) {
+    var sqs = new AWS.SQS();
+    var rparams = {
+      MessageBody: JSON.stringify(item),
+      QueueUrl: ac.sqs_slice,
+      DelaySeconds: 0
+    };
+    sqs.sendMessage(rparams, function(err, data) {
+      if (err) reject(err);
+      else resolve(data);
+    });
+  })
+}
+
+
 
 module.exports.deleteRenderMessage = function(receipt)
 {
   return new Promise(function(resolve, reject) {
+    console.info("DELETING render request message");
     var sqs = new AWS.SQS();
     sqs.deleteMessage({
       QueueUrl: ac.sqs_render_completed,

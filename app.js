@@ -125,6 +125,7 @@ channel.on('job.download', function(e) {
 })
 
 renderMonitor.startPooling(channel);
+slicerMonitor.startPooling(channel);
 //socketServer.start(channel);
 
 // socket.io authentication

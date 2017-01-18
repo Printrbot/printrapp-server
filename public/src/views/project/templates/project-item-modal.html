@@ -8,10 +8,16 @@
       <div class="modal-body">
         <div class="">
           <div class="preview" syle="position:relative">
+            <% if (model.get('sliced') == false) { %>
+              <div class="sstatus" style="position:absolute;top:10px;left:15px"><i class="fa fa-spinner fa-spin"></i> slicing...</div>
+            <% } %>
+            <% if (model.get('sliced') == 'error') { %>
+              <div class="sstatus" style="position:absolute;top:10px;left:15px"><i class="fa fa-exclamation-circle"></i> unable to slice!</div>
+            <% } %>
             <% if (model.get('preview')) { %>
               <img  class="preview-image" src="<%- model.get('preview') %>"/>
             <% } else { %>
-              <img  class="preview-image" src="/images/loading.gif">
+              <img  class="preview-image" src="/images/rings.svg">
             <% } %>
 
             <button class="show-three-dee"><img src="/images/rotate3d.svg"/></button>

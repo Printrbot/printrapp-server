@@ -114,6 +114,19 @@ function(
                 this.$el.find('.preview img.preview-image').attr('src', e.data.preview);
               }
             }, this)
+
+            this.listenTo(app.channel, 'slicing.completed', function(e) {
+              if (this.model.get('_id') && this.model.get('_id') == e.data._id) {
+                if (e.data.sliced == "error" && this.model.get('sliced') != 'error') {
+                  this.model.set('sliced', 'error');
+                  this.$el.find('.sstatus').html('<i class="fa fa-exclamation-circle"></i> unable to slice!')
+                } else if (e.data.sliced == true) {
+                  this.model.set('sliced', true);
+                  this.$el.find('.sstatus').remove();
+                }
+              }
+            }, this)
+
           }
           else {
             this.template = _.template(TplG);

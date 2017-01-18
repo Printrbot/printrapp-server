@@ -7,14 +7,17 @@ var Jimp = require('jimp')
 module.exports.fixStl = function(file_path)
 {
   return new Promise(function(resolve, reject) {
-    var cmd = 'admesh --write-binary-stl=./'+file_path+' ./'+file_path;
+    var cmd = 'admesh ./'+file_path+' -b ./'+file_path;
+    console.info(cmd);
     exec(cmd, function callback(err, stdout, stderr) {
 
       if (err) {
         console.info("ERROR IN ADMESH", err)
+        reject(err);
         // allow it still to upload
       }
       else if (stderr) {
+        reject(err);
         console.info("stdERROR IN ADMESH", stderr)
       }
 

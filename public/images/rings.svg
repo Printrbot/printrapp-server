@@ -1,6 +1,6 @@
-<svg width="270" height="240" viewBox="0 0 270 240" xmlns="http://www.w3.org/2000/svg" stroke="#fff">
+<svg width="270" height="240" viewBox="0 0 270 240" xmlns="http://www.w3.org/2000/svg" stroke="#424242">
     <g fill="none" fill-rule="evenodd" transform="translate(1 1)" stroke-width="2">
-	    <path d="M0,0 L270,0 L270,240 L0,240 L0,0 z" fill="#424242" stroke-width="0"/>
+	    <path d="M0,0 L270,0 L270,240 L0,240 L0,0 z" fill="#fff" stroke-width="0"/>
         <circle cx="135" cy="120" r="30" stroke-opacity="0">
             <animate attributeName="r"
                  begin="1.5s" dur="3s"

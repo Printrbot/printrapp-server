@@ -18,7 +18,6 @@ var db = require('../config/database')
 
 var gcode_thumb = 'https://s3-us-west-2.amazonaws.com/files.printrapp.com/static/gcode_thumb.png';
 var gcode_preview = 'https://s3-us-west-2.amazonaws.com/files.printrapp.com/static/gcode_large.png';
-https://s3-us-west-2.amazonaws.com/files.printrapp.com/static/gcode_error_thumb.png
 
 module.exports = function(app) {
 
@@ -439,39 +438,41 @@ module.exports = function(app) {
 
         // fix the uploaded file with admesh
         return MeshTools.fixStl(f.path) // maybe move this to lambda?
-        .spread(function(file_path, lx, ly, lz) {
-          pi.size = [lx, ly, lz];
-          // upload stl to s3
-          console.info("UPLOADING TO S3".green)
-          var s3uploadpath = 'u/'+project.user+'/i/'+pi.id+'/';
-          var _f = f.path.split("/").pop();
-          return FileRepo.uploadToS3(file_path, f.mimetype, s3uploadpath+_f)
-        })
-        .then(function(stl) {
-          console.info("UPDATING PROJECT WITH SRC ".green, stl);
-          // update item with stl location
-          console.info(stl);
-          pi.file_path = stl.Key;
-          return pi
-        })
-        .then(function(_pi) {
-          console.info("SAVING PROJECT ITEM TO DB".green)
-          // save this item in database
-          return ProjectModel.createItem(pi);
-        })
-        .then(function(project_item_res) {
-          // send message to render queue
-          console.info("HERE".red, project_item_res);
-          pi._rev = project_item_res.rev;
-          console.info("SENDING RENDER MSG ".green, pi)
-          return MessageQueue.sendRenderMessage(pi)
-          .then(function(q) {
-            return [project, pi];
+          .spread(function(file_path, lx, ly, lz) {
+            pi.size = [lx, ly, lz];
+            // upload stl to s3
+            console.info("UPLOADING TO S3".green)
+            var s3uploadpath = 'u/'+project.user+'/i/'+pi.id+'/';
+            var _f = f.path.split("/").pop();
+            return FileRepo.uploadToS3(file_path, f.mimetype, s3uploadpath+_f)
           })
-        })
-      }
-
-      // GCODE --------------------------------------------
+          .then(function(stl) {
+            console.info("UPDATING PROJECT WITH SRC ".green, stl);
+            // update item with stl location
+            console.info(stl);
+            pi.file_path = stl.Key;
+            return pi
+          })
+          .then(function(_pi) {
+            console.info("SAVING PROJECT ITEM TO DB".green)
+            // save this item in database
+            return ProjectModel.createItem(pi);
+          })
+          .then(function(project_item_res) {
+            // send message to render queue
+            console.info("HERE".red, project_item_res);
+            pi._rev = project_item_res.rev;
+            console.info("SENDING RENDER MSG ".green, pi)
+            return MessageQueue.sendRenderMessage(pi)
+            .then(function(q) {
+              return [project, pi];
+            })
+          })
+          .catch(function(err) {
+            console.info("ERROR: ", err)
+            res.sendStatus(400);
+          })
+      } // GCODE --------------------------------------------
       else if (f_type == 'gco') {
         pi.ftype = 'gco';
         pi.fixed = false;
@@ -482,73 +483,80 @@ module.exports = function(app) {
         var _f = f.path.split("/").pop();
 
         return FileRepo.uploadToS3(f.path, f.mimetype, s3uploadpath+_f)
-        .then(function(gfile) {
-          console.info("UPDATING PROJECT WITH SRC ".green, gfile);
-          pi.file_path = gfile.Key;
-          return pi
-        })
-        .then(function(_pi) {
-          console.info("SAVING PROJECT ITEM TO DB".green)
-          // save this item in database
-          return ProjectModel.createItem(pi);
-        })
-        .then(function(project_item_res) {
-          return [project, pi];
-        })
-        .catch(function(err) {
-          console.info("ERROR: ", err);
-          res.sendStatus(400);
-        })
+          .then(function(gfile) {
+            console.info("UPDATING PROJECT WITH SRC ".green, gfile);
+            pi.file_path = gfile.Key;
+            return pi
+          })
+          .then(function(_pi) {
+            console.info("SAVING PROJECT ITEM TO DB".green)
+            // save this item in database
+            return ProjectModel.createItem(pi);
+          })
+          .then(function(project_item_res) {
+            return [project, pi];
+          })
+          .catch(function(err) {
+            console.info("ERROR: ", err);
+            res.sendStatus(400);
+          })
       }
     })
     .spread(function(project, item) {
       if (item.ftype == 'stl') {
-        // slice it
-        BotFiles.slice(item)
-        .then(function(out) {
-          console.info("SLICING DONE, UPDATE ITEM HERE WITH SLICING STATUS".green);
-          console.info("ITEM: ".green, item);
-          ProjectModel.getItem(item._id)
-          .then(function(item) {
-            item.sliced = true;
-            return ProjectModel.updateItem(item)
-          })
-          .spread(function(_data, _item) {
-            console.info("PROJECT ITEM UPDATED WITH SLICED:TRUE".green);
-            console.info("SENDING MESSAGE TO BROWSER TO UPDATE SLICING STATUS".green);
-            //return channel.emit('render.completed', item);
-            console.info(_item);
-            item._rev = _item.rev;
-            item.sliced = true;
-            app.channel.emit('slicing.completed', item);
+
+        MessageQueue.sendSliceMessage(item)
+          .then(function(i) {
+            console.info("slice msg sent...", i)
           });
-        })
-        .catch(function(err) {
-          console.info("SLICING FAILED!!!".red);
-          // fetch the item from db, since it may have been updated
-          // and version may have changed
-          ProjectModel.getItem(item._id)
-          .then(function(item) {
-            item.sliced = "error";
-            return ProjectModel.updateItem(item)
-          })
-          .spread(function(_data, _item) {
-            console.info("PROJECT ITEM UPDATED WITH SLICED:ERROR".red);
-            console.info("SENDING MESSAGE TO BROWSER TO UPDATE SLICING STATUS".red);
-            //return channel.emit('render.completed', item);
-            console.info(_data);
-            console.info(_item);
-            _data._rev = _item.rev;
-            app.channel.emit('slicing.completed', _data);
-          })
-        });
 
         return res.json(item);
+
+        /*
+        // slice it
+        BotFiles.slice(item)
+          .then(function(out) {
+            console.info("SLICING DONE, UPDATE ITEM HERE WITH SLICING STATUS".green);
+            console.info("ITEM: ".green, item);
+            ProjectModel.getItem(item._id)
+            .then(function(item) {
+              item.sliced = true;
+              return ProjectModel.updateItem(item)
+            })
+            .spread(function(_data, _item) {
+              console.info("PROJECT ITEM UPDATED WITH SLICED:TRUE".green);
+              console.info("SENDING MESSAGE TO BROWSER TO UPDATE SLICING STATUS".green);
+              //return channel.emit('render.completed', item);
+              console.info(_item);
+              item._rev = _item.rev;
+              item.sliced = true;
+              app.channel.emit('slicing.completed', item);
+            });
+          })
+          .catch(function(err) {
+            console.info("SLICING FAILED!!!".red);
+            // fetch the item from db, since it may have been updated
+            // and version may have changed
+            ProjectModel.getItem(item._id)
+            .then(function(item) {
+              item.sliced = "error";
+              return ProjectModel.updateItem(item)
+            })
+            .spread(function(_data, _item) {
+              console.info("PROJECT ITEM UPDATED WITH SLICED:ERROR".red);
+              console.info("SENDING MESSAGE TO BROWSER TO UPDATE SLICING STATUS".red);
+              //return channel.emit('render.completed', item);
+              console.info(_data);
+              console.info(_item);
+              _data._rev = _item.rev;
+              app.channel.emit('slicing.completed', _data);
+            })
+          });
+
+          return res.json(item);
+          */
       }
-
       else if (item.ftype == 'gco') {
-
-
         // hit lambda to fix the code and make it compatible with G2
         BotFiles.fixGcode(item)
         .then(function(out) {

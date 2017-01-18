@@ -31,7 +31,7 @@ function onReceiveMessage(err, data)
       if (data.Messages) {
           var msg = JSON.parse(data.Messages[0].Body);
           // find the file in the db and update rendered attribute
-          db.get(msg.id, {}, function(err, job)
+          db.get(msg.id, {}, function(err, item)
           {
               if (err) {
                   console.info("SLICE MONITOR: error, unable to find the file in db");
@@ -39,20 +39,17 @@ function onReceiveMessage(err, data)
               } else {
                   // update the doc
                   console.info("SLICE MONITOR: updating db file");
+                  item.sliced = true;
 
-                  job.status = 'ready';
-                  job.gcode = job.project.stl.replace(".stl", ".gcode");
-
-                  db.insert(job, [], function(err, b) {
+                  db.insert(item, [], function(err, b) {
                      if (err) {
                          console.info("SLICE MONITOR: error ", err);
                      } else {
                          // delete message
                          deleteSlicingMessage();
                          //  notify clients
-                         channel.emit('job.status', {user: job.user, job: job.shortid, data: "slicing.completed"});
-                         // send job to printer
-                         sserver.sendJobToPrinter(job.user, job.printer_sn, job);
+                         item._rev = b.rev;
+                         channel.emit('slicing.completed', item);
                      }
                   });
               }

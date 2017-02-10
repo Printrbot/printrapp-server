@@ -152,13 +152,13 @@ function(
 
         open: function(callback)
         {
-            $('body').append(this.render());
-            $('#gass').modal();
-            var t = this;
-            $('#gass').on('hidden.bs.modal', function () {
-              t.remove();
-            })
-            this.callback = callback;
+          $('body').append(this.render());
+          $('#gass').modal();
+          var t = this;
+          $('#gass').on('hidden.bs.modal', function () {
+            t.remove();
+          })
+          this.callback = callback;
         },
 
         delete: function()

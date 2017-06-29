@@ -15,7 +15,7 @@ function(
       type: 'project_item',
       ftype: 'stl',
       resolution: 'standard',
-      infil: 'standard',
+      infill: 'standard',
       support: false,
       brim: false
     },
